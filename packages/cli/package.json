@@ -1,0 +1,25 @@
+{
+  "name": "@minigame/cli",
+  "version": "0.0.0",
+  "description": "minigame cli",
+  "homepage": "https://github.com/congeer/minigame#readme",
+  "license": "MIT",
+  "main": "bin/cli.js",
+  "type": "module",
+  "files": [
+    "bin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/congeer/minigame.git"
+  },
+  "bin": {
+    "minigame": "bin/cli.js"
+  },
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "commander": "^10.0.0",
+    "inquirer": "^9.1.5",
+    "ora": "^6.3.0"
+  }
+}
