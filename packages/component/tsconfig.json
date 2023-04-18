@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "target": "esnext",
+    "module": "esnext",
+    "allowJs": false,
+    "removeComments": true,
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowUmdGlobalAccess": true,
+    "esModuleInterop": true,
+    "types": ["minigame-api-typings"],
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "include": ["src", "types"],
+  "exclude": ["node_modules", "dist"]
+}
