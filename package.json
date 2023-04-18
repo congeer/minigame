@@ -7,7 +7,9 @@
   "scripts": {
     "build": "lerna run build",
     "types": "lerna run types",
-    "clean": "lerna run clean"
+    "clean": "lerna run clean",
+    "publish": "lerna publish from-package --skip-git",
+    "version": "lerna version --skip-git"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.0.0",
