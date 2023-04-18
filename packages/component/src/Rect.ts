@@ -1,52 +1,27 @@
-import {Graphics} from "pixi.js";
+import {ObservablePoint} from "pixi.js";
+import {Shape, ShapeOptions} from "./Shape";
 
 
 type Options = {
-    borderColor?: number,
-    borderWidth?: number,
-    borderAlpha?: number,
-    backColor?: number,
-    backAlpha?: number
     width: number,
     height: number,
-    zIndex?: number
-}
-const defaultOptions: Options = {
-    borderWidth: 0,
-    borderColor: 0xffffff,
-    borderAlpha: 1,
-    backColor: 0,
-    backAlpha: 1,
-    width: 0,
-    height: 0
-}
+} & ShapeOptions
 
-export class Rect extends Graphics {
+export class Rect extends Shape<Options> {
 
-    opts: Options;
+    anchor = new ObservablePoint(() => {
+        this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
+    }, this, 0, 0);
 
-    constructor(opts?: Options) {
-        super();
-        this.opts = {...defaultOptions, ...opts};
-        this.drawSelf();
-    }
-
-    drawSelf() {
+    doDraw() {
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
         }
         this.beginFill(this.opts.backColor, this.opts.backAlpha);
-        const margin = this.opts.borderWidth / 2;
-        const delta = this.opts.borderWidth;
+        const delta = this.opts.borderWidth ?? 0;
+        const margin = delta / 2;
         this.drawRect(margin, margin, this.opts.width - delta, this.opts.height - delta)
         this.endFill();
-        this.zIndex = this.opts.zIndex ?? -1;
-    }
-
-    reDraw(opts) {
-        this.opts = {...this.opts, ...opts}
-        this.clear();
-        this.drawSelf();
     }
 
     set rectHeight(height: number) {
@@ -55,26 +30,6 @@ export class Rect extends Graphics {
 
     set rectWidth(width: number) {
         this.reDraw({width});
-    }
-
-    set backColor(backColor: number) {
-        this.reDraw({backColor});
-    }
-
-    set borderColor(borderColor: number) {
-        this.reDraw({borderColor});
-    }
-
-    set borderAlpha(borderAlpha: number) {
-        this.reDraw({borderAlpha});
-    }
-
-    set backAlpha(backAlpha: number) {
-        this.reDraw({backAlpha});
-    }
-
-    set borderWidth(borderWidth: number) {
-        this.reDraw({borderWidth});
     }
 
 }
