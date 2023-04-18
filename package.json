@@ -8,9 +8,9 @@
     "build": "lerna run build",
     "types": "lerna run types",
     "clean": "lerna run clean",
-    "publish": "lerna publish from-package --skip-git",
+    "publish": "lerna publish from-package",
     "install": "lerna bootstrap",
-    "version": "lerna version --skip-git"
+    "version": "lerna version"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.0.0",
