@@ -62,14 +62,15 @@ function loadLuaSource(source) {
 
 export function loadLua(key, lua) {
     const invoke = loadLuaSource(lua).invoke(null, []);
-    for (const fn of afterLoad) {
-        fn(key, invoke);
+    for (const after of afterLoad) {
+        const {key: afterKey, fn} = after;
+        if (afterKey === key) fn(invoke);
     }
     return invoke;
 }
 
 const afterLoad = []
 
-export function afterLoadLua(fn) {
-    afterLoad.push(fn);
+export function afterLoadLua(key, fn) {
+    afterLoad.push({key, fn});
 }

@@ -6,7 +6,7 @@ type Options = {
 
 export class Circle extends Shape<Options> {
 
-    doDraw() {
+    protected doDraw() {
         let radius = this.opts.radius;
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)

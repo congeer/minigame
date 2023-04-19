@@ -7,7 +7,7 @@ type Options = {
 
 export class Hexagon extends Shape<Options> {
 
-    doDraw() {
+    protected doDraw() {
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
         }

@@ -1,4 +1,4 @@
-import {isWx} from "./wechat/wx";
+import {isWechat} from "./wechat/wx";
 
 export enum Platform {
     Web = 'web',
@@ -23,7 +23,7 @@ const config = {
     }
 }
 
-if (isWx()) {
+if (isWechat()) {
     config.platform = Platform.Wechat;
     const systemInfo = wx.getSystemInfoSync();
     config.safeArea = systemInfo.safeArea;

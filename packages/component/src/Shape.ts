@@ -37,11 +37,11 @@ export class Shape<T extends ShapeOptions> extends Graphics {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }
 
-    doDraw() {
+    protected doDraw() {
 
     }
 
-    reDraw(opts) {
+    protected reDraw(opts) {
         this.opts = {...this.opts, ...opts}
         this.clear();
         this.drawSelf();

@@ -2,7 +2,7 @@ import {Application} from "pixi.js";
 
 import config from "./config";
 
-let _app;
+let _app: Application;
 
 export {
     _app as app
