@@ -8,9 +8,12 @@
     "build": "lerna run build",
     "types": "lerna run types",
     "clean": "lerna run clean",
+    "one": "npm run clean && npm run build && npm run types",
     "publish": "lerna publish from-package",
     "install": "lerna bootstrap",
-    "version": "lerna version"
+    "version": "lerna version patch --yes",
+    "version:minor": "lerna version minor --yes",
+    "version:major": "lerna version major --yes"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.0.0",
