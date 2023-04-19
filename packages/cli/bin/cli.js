@@ -72,12 +72,12 @@ program.command("update [version]").description("update project version").action
     const packageJson = JSON.parse(packageString);
     for (let dependenciesKey in packageJson.dependencies) {
         if (dependenciesKey.startsWith("@minigame/")) {
-            packageJson.dependencies[dependenciesKey] = version;
+            packageJson.dependencies[dependenciesKey] = `^${version}`;
         }
     }
     for (let devDependenciesKey in packageJson.devDependencies) {
         if (devDependenciesKey.startsWith("@minigame/")) {
-            packageJson.devDependencies[devDependenciesKey] = version;
+            packageJson.devDependencies[devDependenciesKey] = `^${version}`;
         }
     }
     execSync(`echo '${JSON.stringify(packageJson, null, 2)}' > ./package.json`);
