@@ -14,6 +14,8 @@ export const createApp = (opts?) => {
         window.onresize = () => {
             _app.renderer.resize(innerWidth, innerHeight)
         }
+        _canvas = document.createElement("canvas");
+        document.body.appendChild(_canvas);
     } else if (config.platform === "wechat") {
         wx.setKeepScreenOn({keepScreenOn: true})
         _canvas = GameGlobal.canvas;

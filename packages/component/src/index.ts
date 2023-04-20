@@ -1,7 +1,7 @@
+export {Scene, registerScene, registerScenes, removeScene, replaceScene, navigateBack, navigateTo} from './Scene'
 export {Modal} from './Modal'
 export {Rect} from './Rect'
 export {RichText} from './RichText'
-export {Scene} from './Scene'
 export {Button} from './Button'
 export {Circle} from './Circle'
 export {Hexagon} from './Hexagon'
