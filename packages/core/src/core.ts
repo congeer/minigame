@@ -23,7 +23,9 @@ export const createApp = (opts?) => {
 
     _app = new Application({
         view: _canvas,
+        autoDensity: true,
         antialias: true,
+        resolution: devicePixelRatio,
         backgroundColor: 0,
         width: innerWidth,
         height: innerHeight,
