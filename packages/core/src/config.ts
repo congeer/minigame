@@ -37,6 +37,10 @@ const setUnit = (safeArea) => {
 }
 
 const setSafeArea = (safeArea?) => {
+    document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top)')
+    document.documentElement.style.setProperty('--sar', 'env(safe-area-inset-right)')
+    document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom)')
+    document.documentElement.style.setProperty('--sal', 'env(safe-area-inset-left)')
     const top = getComputedStyle(document.documentElement).getPropertyValue("--sat");
     const right = getComputedStyle(document.documentElement).getPropertyValue("--sar");
     const bottom = getComputedStyle(document.documentElement).getPropertyValue("--sab");
