@@ -14,6 +14,8 @@ export {createStore, storeEvent} from "./store";
 
 export {eventBus} from "./event";
 
+export {default as ShareManager} from "./share";
+
 export {unit, align, spriteSize, createPromise} from "./utils";
 
 export {isWechat} from "./wechat/wx"

@@ -9,7 +9,7 @@
     "types": "lerna run types",
     "clean": "lerna run clean",
     "one": "npm run clean && npm run build && npm run types",
-    "publish": "lerna publish from-package",
+    "publish": "lerna publish from-package --yes",
     "install": "lerna bootstrap",
     "version": "lerna version patch --yes",
     "version:minor": "lerna version minor --yes",
