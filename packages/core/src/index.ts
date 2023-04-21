@@ -21,4 +21,3 @@ export {isWechat} from "./wechat/wx"
 export {loadLua, afterLoadLua} from "./parser/lua"
 
 export {i18n} from './parser/i18n'
-

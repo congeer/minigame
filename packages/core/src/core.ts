@@ -14,20 +14,9 @@ export {
 }
 
 export const createApp = (opts?) => {
-    let _canvas;
-    if (config.platform === "web") {
-        window.onresize = () => {
-            _app.renderer.resize(innerWidth, innerHeight)
-        }
-        _canvas = document.createElement("canvas");
-        document.body.appendChild(_canvas);
-    } else if (config.platform === "wechat") {
-        wx.setKeepScreenOn({keepScreenOn: true})
-        _canvas = GameGlobal.canvas;
-    }
     _app.stage = new Container();
     _app.renderer = new Renderer({
-        view: _canvas,
+        view: config.adapter.getCanvas(),
         autoDensity: true,
         antialias: true,
         resolution: devicePixelRatio,
@@ -41,6 +30,5 @@ export const createApp = (opts?) => {
     _app.ticker.add(() => {
         _app.renderer.render(_app.stage)
     }, null, UPDATE_PRIORITY.UTILITY);
-
     return _app;
 }

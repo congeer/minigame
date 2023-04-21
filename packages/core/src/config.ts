@@ -1,7 +1,8 @@
-import {isWechat} from "./wechat/wx";
+import Adapter, {WebAdapter} from "./adapter";
 
 export enum Platform {
     Web = 'web',
+    Android = 'android',
     Wechat = 'wechat',
 }
 
@@ -10,29 +11,57 @@ const config = {
     platform: Platform.Web,
     version: "0.0.0",
     resource: "0.0.0",
-    baseURL: "",
     fonts: {},
     unit: innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000,
+    adapter: new WebAdapter("") as Adapter,
     safeArea: {
-        bottom: innerHeight,
+        width: innerWidth,
         height: innerHeight,
+        top: 0,
+        bottom: innerHeight,
         left: 0,
         right: innerWidth,
-        top: 0,
-        width: innerWidth
+    },
+
+    get baseURL() {
+        return this.adapter.baseURL;
+    },
+
+    set baseURL(url) {
+        this.adapter.baseURL = url;
     }
 }
 
-if (isWechat()) {
-    config.platform = Platform.Wechat;
-    const systemInfo = wx.getSystemInfoSync();
-    config.safeArea = systemInfo.safeArea;
-    config.unit = config.safeArea.width > config.safeArea.height ? config.safeArea.height / 1000 : config.safeArea.width / 1000
+const setUnit = (safeArea) => {
+    config.unit = safeArea.width > safeArea.height ? safeArea.height / 1000 : safeArea.width / 1000
 }
 
+const setSafeArea = (safeArea?) => {
+    const top = getComputedStyle(document.documentElement).getPropertyValue("--sat");
+    const right = getComputedStyle(document.documentElement).getPropertyValue("--sar");
+    const bottom = getComputedStyle(document.documentElement).getPropertyValue("--sab");
+    const left = getComputedStyle(document.documentElement).getPropertyValue("--sal");
+    const tn = top ? parseInt(top.substring(0, top.length - 2)) : 0;
+    const rn = right ? parseInt(right.substring(0, right.length - 2)) : 0;
+    const bn = bottom ? parseInt(bottom.substring(0, bottom.length - 2)) : 0;
+    const ln = left ? parseInt(left.substring(0, left.length - 2)) : 0;
+    config.safeArea = {
+        bottom: innerHeight - bn,
+        height: innerHeight - bn - tn,
+        left: ln,
+        right: innerWidth - rn,
+        top: tn,
+        width: innerWidth - rn - ln,
+        ...safeArea
+    }
+    setUnit(config.safeArea);
+}
 
-export const install = (...e) => {
+export const install = (e) => {
     Object.assign(config, ...e);
+    if (e.baseURL) {
+        config.adapter.baseURL = e.baseURL;
+    }
 }
 
 const _afterLoadFont = [];

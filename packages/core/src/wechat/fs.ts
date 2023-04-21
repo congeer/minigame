@@ -15,7 +15,6 @@ export async function getFileByType(type, name, version, url: string) {
     }
 }
 
-
 export function access(path: string) {
     return new Promise<boolean>((resolve) => {
         fs.access({
