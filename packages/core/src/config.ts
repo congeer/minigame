@@ -62,9 +62,8 @@ const setSafeArea = (safeArea?) => {
 }
 
 export const install = (e) => {
-    Object.assign(config, ...e);
-    if (e.baseURL) {
-        config.adapter.baseURL = e.baseURL;
+    for (let key in e) {
+        config[key] = e[key];
     }
 }
 
