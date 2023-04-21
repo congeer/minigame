@@ -18,8 +18,6 @@ export {default as ShareManager} from "./share";
 
 export {unit, align, spriteSize, createPromise} from "./utils";
 
-export {isWechat} from "./wechat/wx"
+export {isWechat} from "./wechat"
 
-export {loadLua, afterLoadLua} from "./parser/lua"
-
-export {i18n} from './parser/i18n'
+export {loadLua, afterLoadLua, i18n} from "./parser"
