@@ -8,7 +8,6 @@ class WechatAdapter extends Adapter {
         super(url);
 
     }
-
     share(opts): any {
         return wx.shareAppMessage(opts);
     }

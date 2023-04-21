@@ -28,31 +28,35 @@ class Adapter {
     }
 
     async saveFile(file: FileInfo) {
-        return getUrl(this.baseURL, file.path);
+        if (file.type === "font" || file.type === "sound") {
+            return this.getUrl(file.path);
+        }
+        return this.getUrl(file.path, file.version);
     }
 
     async loadFont(file: FileInfo) {
-        const url = await this.saveFile(file);
+        const url = this.getUrl(file.path);
         Assets.add(file.name, url);
         const f = await Assets.load(file.name);
         return f.family;
     }
 
     async loadSound(file: FileInfo) {
-        const url = await this.saveFile(file);
+        const url = this.getUrl(file.path);
         Assets.add(file.name, url);
         await Assets.load(file.name);
     }
 
+    protected getUrl(path, version?) {
+        if (version) {
+            const ext = path.split('.').pop();
+            path = path.replace(`.${ext}`, `-${version}.${ext}`);
+        }
+        return `${this.baseURL}/${path}`;
+    }
+
 }
 
-const getUrl = (baseUrl, path, version?) => {
-    if (version) {
-        const ext = path.split('.').pop();
-        path = path.replace(`.${ext}`, `-${version}.${ext}`);
-    }
-    return `${baseUrl}/${path}`;
-}
 
 class WebAdapter extends Adapter {
 
