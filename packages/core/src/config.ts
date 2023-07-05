@@ -1,19 +1,14 @@
-import Adapter, {WebAdapter} from "./adapter";
+import {WebAdapter} from "./adapter";
 
-export enum Platform {
-    Web = 'web',
-    Android = 'android',
-    Wechat = 'wechat',
-}
 
-const config = {
+const config: Config = {
     name: "game",
     platform: Platform.Web,
     version: "0.0.0",
     resource: "0.0.0",
     fonts: {},
     unit: innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000,
-    adapter: new WebAdapter("") as Adapter,
+    adapter: new WebAdapter(""),
     safeArea: {
         width: innerWidth,
         height: innerHeight,
@@ -32,11 +27,12 @@ const config = {
     }
 }
 
-const setUnit = (safeArea) => {
+
+const setUnit = (safeArea: Area) => {
     config.unit = safeArea.width > safeArea.height ? safeArea.height / 1000 : safeArea.width / 1000
 }
 
-const setSafeArea = (safeArea?) => {
+const setSafeArea = (safeArea?: Area) => {
     document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top)')
     document.documentElement.style.setProperty('--sar', 'env(safe-area-inset-right)')
     document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom)')
@@ -61,20 +57,21 @@ const setSafeArea = (safeArea?) => {
     setUnit(config.safeArea);
 }
 
-export const install = (e) => {
+export const install = (e: { [key: string]: any }) => {
     for (let key in e) {
+        // @ts-ignore
         config[key] = e[key];
     }
 }
 
-const _afterLoadFont = [];
+const _afterLoadFont: LoadFontFn[] = [];
 
-export const installFont = (name, font) => {
+export const installFont = (name: string, font: string) => {
     config.fonts[name] = font;
     _afterLoadFont.forEach(fn => fn(name, font));
 }
 
-export const afterLoadFont = (fn) => {
+export const afterLoadFont = (fn: LoadFontFn) => {
     _afterLoadFont.push(fn);
 }
 

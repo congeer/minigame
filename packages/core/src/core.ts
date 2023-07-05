@@ -1,3 +1,4 @@
+import {IRendererOptions} from "@pixi/core/lib/IRenderer";
 import {Container, Rectangle, Renderer, Ticker, UPDATE_PRIORITY} from "pixi.js";
 
 import config from "./config";
@@ -13,7 +14,7 @@ export {
     _app as app
 }
 
-export const createApp = (opts?) => {
+export const createApp = (opts?: Partial<IRendererOptions>) => {
     _app.stage = new Container();
     _app.renderer = new Renderer({
         view: config.adapter.getCanvas(),

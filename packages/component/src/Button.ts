@@ -1,5 +1,5 @@
 import {align, unit} from "@minigame/core";
-import {Container, ObservablePoint, Text, TextStyle} from "pixi.js";
+import {Container, FederatedPointerEvent, ObservablePoint, Text, TextStyle} from "pixi.js";
 import {Rect} from "./Rect";
 
 
@@ -14,6 +14,7 @@ type Options = {
     borderColor?: number
     height?: number
     width?: number
+    onClick?: () => void
 }
 
 export class Button extends Container {
@@ -28,17 +29,17 @@ export class Button extends Container {
     constructor(opts?: Options) {
         super()
         this.opts = opts ?? {};
-        if (!opts.text) {
-            opts.text = "Button";
+        if (this.opts.text) {
+            this.opts.text = "Button";
         }
-        this.draw(opts);
+        this.draw(this.opts);
     }
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    draw(opts) {
+    draw(opts: Options) {
         const style = opts.fontStyle ?? {
             fill: opts.fontColor ?? 0xffffff, fontSize: unit(60),
         };
@@ -58,7 +59,7 @@ export class Button extends Container {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }
 
-    redraw(opts) {
+    redraw(opts?: Options) {
         this.opts = {...this.opts, ...opts};
         this.removeChildren();
         this.removeAllListeners();
@@ -85,11 +86,11 @@ export class Button extends Container {
         this.redraw({borderWidth})
     }
 
-    set backAlpha(alpha: number) {
-        this.redraw({alpha})
+    set backAlpha(backAlpha: number) {
+        this.redraw({backAlpha})
     }
 
-    set onClick(callback: (event) => void) {
+    set onClick(callback: (event: FederatedPointerEvent) => void) {
         this.on('pointerup', callback)
     }
 

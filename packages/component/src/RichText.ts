@@ -13,7 +13,7 @@ type Option = {
 export class RichText extends Container {
 
     opts: Option;
-    blocks: { tag: string, text: string }[];
+    blocks: { tag: string, text: string }[] = [];
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
@@ -22,14 +22,14 @@ export class RichText extends Container {
     constructor(opts?: Option) {
         super();
         this.opts = opts ?? {};
-        if (opts.style && !opts.styles['default']) {
-            opts.styles['default'] = opts.style;
+        if (this.opts.style && !this.opts.styles['default']) {
+            this.opts.styles['default'] = this.opts.style;
         }
-        if (!opts.text) {
+        if (!this.opts.text) {
             return;
         }
-        this.handlerBlocks(opts);
-        this.drawSelf(opts);
+        this.handlerBlocks(this.opts);
+        this.drawSelf(this.opts);
     }
 
     reDraw(opts: Option) {
@@ -39,30 +39,34 @@ export class RichText extends Container {
         this.drawSelf(this.opts);
     }
 
-    set text(value) {
-        this.opts = {...this.opts, text: value};
+    set text(text: string) {
+        this.opts = {...this.opts, text};
         this.reDraw(this.opts);
     }
 
-    set style(value) {
-        this.opts.styles['default'] = value
+    set style(style: any) {
+        this.opts.styles['default'] = style
         this.reDraw(this.opts);
     }
 
-    set styles(value) {
-        this.opts = {...this.opts, styles: value};
+    set styles(styles: any) {
+        this.opts = {...this.opts, styles};
         this.reDraw(this.opts);
     }
 
-    set maxWidth(value) {
-        this.opts = {...this.opts, maxWidth: value};
+    set maxWidth(maxWidth: number) {
+        this.opts = {...this.opts, maxWidth};
         this.reDraw(this.opts);
     }
 
-    handlerBlocks(opts) {
+    handlerBlocks(opts: Option) {
         const text = opts.text;
-        const blocks = [] as { tag: string, text: string }[];
+        const blocks = [];
         let temp = "";
+
+        if (!text) {
+            return;
+        }
 
         for (let i = 0; i < text.length; i++) {
             const t = text[i];
@@ -104,7 +108,7 @@ export class RichText extends Container {
         this.blocks = blocks;
     }
 
-    customTagHandler(tag): { tag: string, text: string } | undefined {
+    customTagHandler(tag: string): { tag: string, text: string } | undefined {
         return;
     }
 

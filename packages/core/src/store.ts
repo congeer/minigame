@@ -2,7 +2,7 @@ import {utils} from "pixi.js";
 
 const storeEvent = new utils.EventEmitter()
 
-let storeHandle = undefined;
+let storeHandle: any;
 
 const createStore = (store: any, name = "default") => {
     const queue = new WeakSet()

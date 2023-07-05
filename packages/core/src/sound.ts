@@ -2,9 +2,19 @@ import {Assets} from "pixi.js";
 import config from "./config";
 import {root, wx} from "./wechat/wx";
 
-const cache = {}
+interface SoundCache {
+    [id: string]: any
+}
 
-export function play(id: string, opts: { volume?: number, loop?: boolean, reset?: boolean } = {}) {
+const cache: SoundCache = {}
+
+interface SoundOption {
+    volume?: number,
+    loop?: boolean,
+    reset?: boolean
+}
+
+export function play(id: string, opts: SoundOption = {}) {
     if (config.platform === 'wechat') {
         if (cache[id]) {
             const sound = cache[id]
@@ -17,7 +27,7 @@ export function play(id: string, opts: { volume?: number, loop?: boolean, reset?
             const sound = cache[id] = wx.createInnerAudioContext({useWebAudioImplement: true})
             sound.volume = opts.volume ?? 1
             sound.src = `${root}/sound/${id}`
-            sound.loop = opts.loop
+            sound.loop = opts.loop ?? false
             sound.autoplay = true
             return sound
         }

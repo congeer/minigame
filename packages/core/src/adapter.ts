@@ -1,23 +1,16 @@
 import {Assets} from "pixi.js";
 
-export type FileInfo = {
-    name: string;
-    path: string;
-    type: string;
-    version?: string;
-}
-
-class Adapter {
+class Adapter implements IAdapter {
 
     baseURL: string;
 
-    shareFn: (opts) => void
+    shareFn?: (opts: ShareOptions) => void
 
-    constructor(baseUrl) {
+    constructor(baseUrl: string) {
         this.baseURL = baseUrl;
     }
 
-    share(opts): any {
+    share(opts: ShareOptions) {
         return this.shareFn && this.shareFn(opts);
     }
 
@@ -47,7 +40,7 @@ class Adapter {
         await Assets.load(file.name);
     }
 
-    protected getUrl(path, version?) {
+    protected getUrl(path: string, version?: string) {
         if (version) {
             const ext = path.split('.').pop();
             path = path.replace(`.${ext}`, `-${version}.${ext}`);
@@ -60,9 +53,9 @@ class Adapter {
 
 class WebAdapter extends Adapter {
 
-    resizeFn = {};
+    resizeFn: { [key: string]: () => void } = {};
 
-    constructor(baseUrl) {
+    constructor(baseUrl: string) {
         super(baseUrl);
         window.addEventListener("resize", this.onresize.bind(this));
     }
@@ -74,7 +67,7 @@ class WebAdapter extends Adapter {
         window.removeEventListener("resize", this.onresize)
     }
 
-    addResize(key, fn) {
+    addResize(key: string, fn: () => void) {
         this.resizeFn[key] = fn;
     }
 

@@ -1,14 +1,16 @@
 import {DisplayObject} from "@pixi/display";
-import {Container} from "pixi.js";
+import {Container, Sprite} from "pixi.js";
 import config from "./config";
 
-export const createPromise = function <T>(): [Promise<T>, (v?: T) => void, (v?: Error) => void] {
-    let reject: (v?: Error) => void
-    let resolve: (v?: T) => void
+export const createPromise = function <T>(): [Promise<T>, (v: T | PromiseLike<T>) => void, (v?: Error) => void] {
+    let resolve: (v: T | PromiseLike<T>) => void = () => {
+    }
+    let reject: (v?: Error) => void = () => {
+    }
 
     const promise = new Promise<T>((_resolve, _reject) => {
-        reject = _reject
         resolve = _resolve
+        reject = _reject
     })
 
     return [promise, resolve, reject]
@@ -33,12 +35,16 @@ export function mixin<T extends new (...args: any[]) => unknown>(ctor: T, ...bas
     return ctor
 }
 
-export const unit = (num, multiplier?) => {
+export const unit = (num: number, multiplier?: number) => {
     if (multiplier) {
         return Math.floor(config.unit * num / multiplier) * multiplier
     } else {
         return config.unit * num
     }
+}
+
+export function alignGlobal(target: DisplayObject, opts?: IAlign) {
+    align(target, undefined, opts)
 }
 
 export function align<T extends Container>(target: DisplayObject, parent?: T, opts?: IAlign) {
@@ -71,14 +77,6 @@ export function align<T extends Container>(target: DisplayObject, parent?: T, op
     target.y += delta.y / (parent?.scale?.y ?? 1)
 }
 
-export type IAlign = {
-    direction?: 'landscape' | 'portrait'
-    top?: number
-    left?: number
-    right?: number
-    bottom?: number
-}
-
-export const spriteSize = (sprite, size) => {
+export const spriteSize = (sprite: Sprite, size: number) => {
     sprite.scale.x = sprite.scale.y = Math.min(size / sprite.texture.width, size / sprite.texture.height);
 }

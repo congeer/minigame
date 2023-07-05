@@ -1,6 +1,6 @@
 import './env';
 
-export {default as config, Platform} from "./config";
+export {default as config} from "./config";
 
 export {install, afterLoadFont} from "./config";
 
@@ -16,7 +16,7 @@ export {eventBus} from "./event";
 
 export {default as ShareManager} from "./share";
 
-export {unit, align, spriteSize, createPromise} from "./utils";
+export {unit, align, alignGlobal, spriteSize, createPromise} from "./utils";
 
 export {isWechat} from "./wechat"
 

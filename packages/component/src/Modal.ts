@@ -1,5 +1,5 @@
 import {align, app, unit} from "@minigame/core";
-import {Container} from "pixi.js";
+import {Container, DisplayObject} from "pixi.js";
 import {Rect} from "./Rect";
 
 type Options = {
@@ -25,9 +25,9 @@ export class Modal extends Container {
 
     content: Container
 
-    onClose: () => any
+    onClose?: () => any
 
-    onOpen: () => any
+    onOpen?: () => any
 
     private isOpen: boolean = false
 
@@ -93,11 +93,11 @@ export class Modal extends Container {
         })
     }
 
-    addChild(...children) {
+    addChild(...children: DisplayObject[]) {
         return this.content.addChild(...children);
     }
 
-    addExtra(...children) {
+    addExtra(...children: DisplayObject[]) {
         return super.addChild(...children);
     }
 

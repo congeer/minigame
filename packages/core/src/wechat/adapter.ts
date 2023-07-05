@@ -8,7 +8,8 @@ class WechatAdapter extends Adapter {
         super(url);
 
     }
-    share(opts): any {
+
+    share(opts: ShareOptions) {
         return wx.shareAppMessage(opts);
     }
 
@@ -16,25 +17,25 @@ class WechatAdapter extends Adapter {
         return GameGlobal.canvas;
     }
 
-    async saveFile(file): Promise<string> {
+    async saveFile(file: FileInfo): Promise<string> {
         const url = await super.saveFile(file);
         const resPath = await getResPath(file.type, getVerName(file.name, file.version));
-        await getFileByType(file.type, resPath, file.version, url);
+        await getFileByType(file.type, resPath, url, file.version);
         return `${root}/${resPath}`;
     }
 
-    async loadFont(file): Promise<any> {
+    async loadFont(file: FileInfo): Promise<any> {
         const path = await this.saveFile(file);
         return wx.loadFont(path);
     }
 
-    async loadSound(file): Promise<any> {
+    async loadSound(file: FileInfo): Promise<any> {
         await this.saveFile(file);
     }
 
 }
 
-const getResPath = async (type, name) => {
+const getResPath = async (type: string, name: string) => {
     const existed = await access(`${type}`);
     if (!existed) {
         await mkdir(`${type}`);
@@ -42,7 +43,7 @@ const getResPath = async (type, name) => {
     return `${type}/${name}`;
 }
 
-const getVerName = (name, version?) => {
+const getVerName = (name: string, version?: string) => {
     if (version) {
         const ext = name.split('.').pop();
         name = name.replace(`.${ext}`, `-${version}.${ext}`);

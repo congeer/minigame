@@ -27,8 +27,11 @@ export const navigateTo = (name: string, ...args: any[]) => {
 export const replaceScene = (name: string, ...args: any[]) => {
     const constructor = scene[name]
     if (constructor) {
-        const pre = stack.pop().cursor;
-        pre.destroy();
+        const pop = stack.pop();
+        if (pop) {
+            const pre = pop.cursor;
+            pre.destroy();
+        }
         const cursor = new constructor();
         stack[stack.length - 1]?.cursor.hide()
         cursor.show(...args)
@@ -37,14 +40,14 @@ export const replaceScene = (name: string, ...args: any[]) => {
 }
 
 export const navigateBack = () => {
-    if (stack.length < 2) return navigateTo('entry')
-    const pre = stack.pop().cursor;
+    if (stack.length < 2) return
+    const pre = stack.pop()!.cursor;
     pre.destroy();
     const {cursor, args} = stack[stack.length - 1]
     cursor.show(...args)
 }
 
-export const removeScene = (index) => {
+export const removeScene = (index: number) => {
     if (index === -1) {
         const current = stack.pop();
         if (current) current.cursor.destroy();

@@ -1,7 +1,6 @@
 import config from "./config";
 
-
-const ShareManager = {
+const ShareManager: ShareManager = {
     titles: [],
     getTitle: () => {
         if (ShareManager.titles.length === 0) {
@@ -9,13 +8,13 @@ const ShareManager = {
         }
         return ShareManager.titles[Math.random() * ShareManager.titles.length | 0];
     },
-    addTitle: (...titles) => {
+    addTitle: (titles) => {
         ShareManager.titles.push(...titles);
     },
     clearTitle: () => {
         ShareManager.titles = [];
     },
-    share: (options) => {
+    share: (options: ShareOptions) => {
         if (!options.title) {
             options.title = ShareManager.getTitle();
         }

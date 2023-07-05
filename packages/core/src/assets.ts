@@ -2,13 +2,13 @@ import {Assets} from "pixi.js";
 
 import config, {installFont} from "./config";
 
-const loadFont = async (file) => {
+const loadFont: LoaderFn = async (file) => {
     const font = await config.adapter.loadFont(file);
     installFont(file.name, font);
     loader.fileLoaded++;
 }
 
-const loadTexture = async (file) => {
+const loadTexture: LoaderFn = async (file) => {
     const {name, type} = file;
     const pngFile = {
         ...file,
@@ -22,7 +22,7 @@ const loadTexture = async (file) => {
     loader.fileLoaded++;
 }
 
-const loadOther = async (file) => {
+const loadOther: LoaderFn = async (file) => {
     const {name, type} = file;
     const path = await config.adapter.saveFile(file);
     Assets.add(`${type}/${name}`, path)
@@ -31,18 +31,18 @@ const loadOther = async (file) => {
 }
 
 
-const loadSound = async (file) => {
+const loadSound: LoaderFn = async (file) => {
     await config.adapter.loadSound(file);
     loader.fileLoaded++;
 }
 
-const loadLocal = async ({name, path}) => {
+const loadLocal: LoaderFn = async ({name, path}) => {
     Assets.add(name, path)
     await Assets.load(name)
     loader.fileLoaded++;
 }
 
-const loader = {
+const loader: Loader = {
     promises: [],
     fileList: [],
     fileLoaded: 0,
@@ -52,39 +52,41 @@ const loader = {
         loader.fileList = [];
         loader.fileLoaded = 0;
     },
-    load(file, arg1?, arg2?) {
-        if (arguments.length > 1) {
+    load(file: FileInfo | string, arg1?: string, arg2?: string) {
+        if (typeof file === 'string') {
             file = {
                 name: arguments[0],
                 path: arguments[1],
                 type: 'local'
             }
         }
-        loader.fileList.push(file);
-        switch (file.type) {
-            case 'font':
-                loader.promises.push(loadFont(file));
-                break;
-            case 'texture':
-                loader.promises.push(loadTexture(file));
-                break;
-            case 'script':
-                loader.promises.push(loadOther(file));
-                break;
-            case 'sound':
-                loader.promises.push(loadSound(file));
-                break;
-            case 'i18n':
-                loader.promises.push(loadOther(file));
-                break;
-            case 'local':
-                loader.promises.push(loadLocal(file));
-                break;
-            default:
-                loader.promises.push(loadOther(file));
-                break;
+        if (typeof file === 'object') {
+            loader.fileList.push(file);
+            switch (file.type) {
+                case 'font':
+                    loader.promises.push(loadFont(file));
+                    break;
+                case 'texture':
+                    loader.promises.push(loadTexture(file));
+                    break;
+                case 'script':
+                    loader.promises.push(loadOther(file));
+                    break;
+                case 'sound':
+                    loader.promises.push(loadSound(file));
+                    break;
+                case 'i18n':
+                    loader.promises.push(loadOther(file));
+                    break;
+                case 'local':
+                    loader.promises.push(loadLocal(file));
+                    break;
+                default:
+                    loader.promises.push(loadOther(file));
+                    break;
+            }
+            return loader.promises[loader.promises.length - 1];
         }
-        return loader.promises[loader.promises.length - 1];
     },
     result() {
         return Promise.all(loader.promises)

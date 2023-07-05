@@ -2,7 +2,7 @@ import {root, wx} from './wx';
 
 const fs = wx?.getFileSystemManager?.();
 
-export async function getFileByType(type, name, version, url: string) {
+export async function getFileByType(type: string, name: string, url: string, version?: string) {
     const v = localStorage.getItem(`${type}/${name}`);
     if (!version || v === version) {
         const exists = await access(name);

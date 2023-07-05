@@ -9,6 +9,7 @@ export type ShapeOptions = {
     backAlpha?: number
     zIndex?: number
 }
+
 const defaultOptions: ShapeOptions = {
     borderWidth: 0,
     borderColor: 0xffffff,
@@ -23,7 +24,7 @@ export class Shape<T extends ShapeOptions> extends Graphics {
 
     constructor(opts?: T) {
         super();
-        this.opts = {...defaultOptions, ...opts};
+        this.opts = {...defaultOptions, ...opts} as T;
         this.drawSelf();
     }
 
@@ -41,30 +42,30 @@ export class Shape<T extends ShapeOptions> extends Graphics {
 
     }
 
-    protected reDraw(opts) {
+    protected reDraw(opts: T) {
         this.opts = {...this.opts, ...opts}
         this.clear();
         this.drawSelf();
     }
 
     set backColor(backColor: number) {
-        this.reDraw({backColor});
+        this.reDraw({backColor} as T);
     }
 
     set borderColor(borderColor: number) {
-        this.reDraw({borderColor});
+        this.reDraw({borderColor} as T);
     }
 
     set borderAlpha(borderAlpha: number) {
-        this.reDraw({borderAlpha});
+        this.reDraw({borderAlpha} as T);
     }
 
     set backAlpha(backAlpha: number) {
-        this.reDraw({backAlpha});
+        this.reDraw({backAlpha} as T);
     }
 
     set borderWidth(borderWidth: number) {
-        this.reDraw({borderWidth});
+        this.reDraw({borderWidth} as T);
     }
 
 }

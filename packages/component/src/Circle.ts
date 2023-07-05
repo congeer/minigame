@@ -1,10 +1,10 @@
 import {Shape, ShapeOptions} from "./Shape";
 
-type Options = {
+type CircleOptions = {
     radius: number,
 } & ShapeOptions
 
-export class Circle extends Shape<Options> {
+export class Circle extends Shape<CircleOptions> {
 
     protected doDraw() {
         let radius = this.opts.radius;

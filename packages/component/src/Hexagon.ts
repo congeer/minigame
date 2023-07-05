@@ -27,7 +27,7 @@ export class Hexagon extends Shape<Options> {
         this.endFill();
     }
 
-    set side(side) {
+    set side(side: number) {
         this.reDraw({side})
     }
 

@@ -1,15 +1,21 @@
+// @ts-ignore
 import {FENGARI_COPYRIGHT, lauxlib, lua, lualib, to_luastring,} from 'fengari';
+// @ts-ignore
 import * as interop from 'fengari-interop';
-import {ExtensionType, settings, utils} from 'pixi.js'
+import {ExtensionType, LoaderParser, settings, utils} from 'pixi.js'
 
-export const luaParser = {
+export const luaParser: LoaderParser = {
     name: "lua-parser",
     extension: ExtensionType.LoadParser,
     test: (url) => utils.path.extname(url).toLowerCase() === ".lua",
-    async load(url, args, loader) {
+    async load(url, args) {
         const response = await settings.ADAPTER.fetch(url);
         const lua = await response.text();
-        return loadLua(args.alias[0], lua);
+        const name = args?.alias?.[0];
+        if (!name) {
+            throw new Error("lua name is empty")
+        }
+        return loadLua(name, lua);
     },
 }
 
@@ -40,7 +46,7 @@ lua_pop(L, 1);
 lua_pushstring(L, to_luastring(FENGARI_COPYRIGHT));
 lua_setglobal(L, to_luastring("_COPYRIGHT"));
 
-function loadLuaSource(source) {
+function loadLuaSource(source: any) {
     if (typeof source == "string")
         source = to_luastring(source);
     else if (!(source instanceof Uint8Array))
@@ -60,7 +66,7 @@ function loadLuaSource(source) {
     return res;
 }
 
-export function loadLua(key, lua) {
+export function loadLua(key: string, lua: string) {
     const invoke = loadLuaSource(lua).invoke(null, []);
     for (const after of afterLoad) {
         const {key: afterKey, fn} = after;
@@ -69,8 +75,8 @@ export function loadLua(key, lua) {
     return invoke;
 }
 
-const afterLoad = []
+const afterLoad: LuaAfterLoad[] = []
 
-export function afterLoadLua(key, fn) {
+export function afterLoadLua(key: string, fn: AfterLuaLoadFn) {
     afterLoad.push({key, fn});
 }

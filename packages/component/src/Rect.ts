@@ -3,8 +3,8 @@ import {Shape, ShapeOptions} from "./Shape";
 
 
 type Options = {
-    width: number,
-    height: number,
+    width?: number,
+    height?: number,
 } & ShapeOptions
 
 export class Rect extends Shape<Options> {
@@ -14,6 +14,9 @@ export class Rect extends Shape<Options> {
     }, this, 0, 0);
 
     protected doDraw() {
+        if (!this.opts.width || !this.opts.height) {
+            return;
+        }
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
         }

@@ -1,14 +1,20 @@
-import {utils} from "pixi.js";
+import {DisplayObject} from "@pixi/display";
+import {Container, utils} from "pixi.js";
 import {app} from "./core";
 
 export const eventBus = new utils.EventEmitter()
 
+type FindTarget = (target: DisplayObject, event: any) => (DisplayObject | undefined);
+
 window.addEventListener("mousewheel", (event: any) => {
     let currentTarget = null;
-    const findTarget = (target, event) => {
+    let findTarget: FindTarget = (target, event) => {
         if (target.hitArea && target.hitArea.contains(event.x, event.y) && target.onwheel) {
             return target;
         } else {
+            if (!(target instanceof Container)) {
+                return;
+            }
             for (let i = 0; i < target.children.length; i++) {
                 const t = findTarget(target.children[i], event);
                 if (t) {
@@ -16,7 +22,7 @@ window.addEventListener("mousewheel", (event: any) => {
                 }
             }
         }
-        return null;
+        return;
     };
 
     for (let i = 0; i < app.stage.children.length; i++) {
