@@ -16,5 +16,5 @@
       "esnext"
     ]
   },
-  "include": ["./**/*.d.ts", "./**/*.ts"]
+  "include": ["src"]
 }

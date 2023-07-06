@@ -4,7 +4,7 @@ const storeEvent = new utils.EventEmitter()
 
 let storeHandle: any;
 
-const createStore = (store: any, name = "default") => {
+const createStore = (store: Store, name = "default") => {
     const queue = new WeakSet()
     const handle = {
         get(target: any, k: any) {
@@ -37,7 +37,7 @@ const createStore = (store: any, name = "default") => {
         }
     }
     localStorage.setItem(name, JSON.stringify(store))
-    return new Proxy<typeof store>(store, handle);
+    return new Proxy<Store>(store, handle);
 }
 
 export {

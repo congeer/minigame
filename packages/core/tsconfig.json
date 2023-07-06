@@ -17,5 +17,5 @@
       "esnext"
     ]
   },
-  "include": ["src", "src/types"],
+  "include": ["src"],
 }

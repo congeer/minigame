@@ -88,3 +88,8 @@ interface ShareManager {
     share(options: ShareOptions): void;
 }
 
+interface Store {
+    __type__: string
+
+    [key: string]: any
+}
