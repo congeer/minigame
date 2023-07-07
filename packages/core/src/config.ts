@@ -1,7 +1,34 @@
+import type {IAdapter} from "./adapter";
 import {WebAdapter} from "./adapter";
 
+export enum Platform {
+    Web = 'web',
+    Android = 'android',
+    Wechat = 'wechat',
+}
 
-const config: Config = {
+export interface Area {
+    width: number;
+    height: number;
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+}
+
+interface Config {
+    name: string;
+    platform: Platform;
+    version: string;
+    resource: string;
+    fonts: { [key: string]: string };
+    unit: number;
+    adapter: IAdapter;
+    safeArea: Area;
+    baseURL: string;
+}
+
+export const config: Config = {
     name: "game",
     platform: Platform.Web,
     version: "0.0.0",
@@ -57,11 +84,26 @@ const setSafeArea = (safeArea?: Area) => {
     setUnit(config.safeArea);
 }
 
-export const install = (e: { [key: string]: any }) => {
-    for (let key in e) {
+interface ConfigOption {
+    name?: string;
+    platform?: Platform;
+    version?: string;
+    resource?: string;
+    unit?: number;
+    adapter?: IAdapter;
+    safeArea?: Area;
+    baseURL?: string;
+}
+
+export const install = (e: ConfigOption) => {
+    Object.keys(e).forEach(key => {
         // @ts-ignore
         config[key] = e[key];
-    }
+    })
+}
+
+export interface LoadFontFn {
+    (name: string, font: string): void;
 }
 
 const _afterLoadFont: LoadFontFn[] = [];
@@ -74,5 +116,3 @@ export const installFont = (name: string, font: string) => {
 export const afterLoadFont = (fn: LoadFontFn) => {
     _afterLoadFont.push(fn);
 }
-
-export default config;

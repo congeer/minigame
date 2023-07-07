@@ -1,6 +1,6 @@
 import {DisplayObject} from "@pixi/display";
 import {Container, Sprite} from "pixi.js";
-import config from "./config";
+import {config} from "./config";
 
 export const createPromise = function <T>(): [Promise<T>, (v: T | PromiseLike<T>) => void, (v?: Error) => void] {
     let resolve: (v: T | PromiseLike<T>) => void = () => {
@@ -43,11 +43,19 @@ export const unit = (num: number, multiplier?: number) => {
     }
 }
 
-export function alignGlobal(target: DisplayObject, opts?: IAlign) {
+export function alignGlobal(target: DisplayObject, opts?: Align) {
     align(target, undefined, opts)
 }
 
-export function align<T extends Container>(target: DisplayObject, parent?: T, opts?: IAlign) {
+export interface Align {
+    direction?: 'landscape' | 'portrait'
+    top?: number
+    left?: number
+    right?: number
+    bottom?: number
+}
+
+export function align<T extends Container>(target: DisplayObject, parent?: T, opts?: Align) {
     const delta = {x: 0, y: 0}
     const rect = target.getBounds(false)
     const {direction} = opts || {}

@@ -1,23 +1,25 @@
 import './env';
 
-export {default as config} from "./config";
+export * from "./config";
 
-export {install, afterLoadFont} from "./config";
+export * from "./config";
 
-export {default as loader} from "./assets";
+export * from "./assets";
 
-export {app, createApp} from "./core";
+export * from "./core";
 
-export {play, pause} from './sound'
+export * from './sound'
 
-export {createStore, storeEvent} from "./store";
+export * from "./store";
 
-export {eventBus} from "./event";
+export * from "./event";
 
-export {default as ShareManager} from "./share";
+export * from "./share";
 
-export {unit, align, alignGlobal, spriteSize, createPromise} from "./utils";
+export * from "./utils";
 
-export {isWechat} from "./wechat"
+export * from "./wechat"
 
-export {loadLua, afterLoadLua, i18n} from "./parser"
+export * from "./parser"
+
+

@@ -66,6 +66,15 @@ function loadLuaSource(source: any) {
     return res;
 }
 
+interface LuaAfterLoad {
+    key: string,
+    fn: AfterLuaLoadFn
+}
+
+export interface AfterLuaLoadFn {
+    (invoke: any): void;
+}
+
 export function loadLua(key: string, lua: string) {
     const invoke = loadLuaSource(lua).invoke(null, []);
     for (const after of afterLoad) {

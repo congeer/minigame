@@ -1,5 +1,5 @@
-import config, {install} from "../config";
-import ShareManager from "../share";
+import {config, install, Platform} from "../config"
+import {ShareManager} from "../share";
 import WechatAdapter from "./adapter";
 import {isWechat, wx} from "./wx";
 

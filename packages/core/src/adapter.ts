@@ -1,6 +1,31 @@
 import {Assets} from "pixi.js";
+import type {FileInfo} from "./assets";
 
-class Adapter implements IAdapter {
+export interface ShareOptions {
+    title?: string;
+    imageUrl?: string;
+    query?: string;
+    success?: () => void;
+    fail?: () => void;
+    complete?: () => void;
+}
+
+export interface IAdapter {
+    baseURL: string;
+    shareFn?: (opts: ShareOptions) => void
+
+    share(opts: ShareOptions): any
+
+    getCanvas(): HTMLCanvasElement
+
+    saveFile(file: FileInfo): Promise<any>
+
+    loadFont(file: FileInfo): Promise<any>
+
+    loadSound(file: FileInfo): Promise<any>
+}
+
+export class Adapter implements IAdapter {
 
     baseURL: string;
 
@@ -51,7 +76,7 @@ class Adapter implements IAdapter {
 }
 
 
-class WebAdapter extends Adapter {
+export class WebAdapter extends Adapter {
 
     resizeFn: { [key: string]: () => void } = {};
 
@@ -79,6 +104,3 @@ class WebAdapter extends Adapter {
 
 }
 
-export default Adapter;
-
-export {WebAdapter};

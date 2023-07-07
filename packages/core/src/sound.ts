@@ -1,5 +1,5 @@
 import {Assets} from "pixi.js";
-import config from "./config";
+import {config} from "./config";
 import {root, wx} from "./wechat/wx";
 
 interface SoundCache {
@@ -8,7 +8,7 @@ interface SoundCache {
 
 const cache: SoundCache = {}
 
-interface SoundOption {
+export interface SoundOption {
     volume?: number,
     loop?: boolean,
     reset?: boolean

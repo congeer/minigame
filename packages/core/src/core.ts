@@ -1,7 +1,6 @@
-import {IRendererOptions} from "@pixi/core/lib/IRenderer";
-import {Container, Rectangle, Renderer, Ticker, UPDATE_PRIORITY} from "pixi.js";
+import {Container, IRendererOptions, Rectangle, Renderer, Ticker, UPDATE_PRIORITY} from "pixi.js";
 
-import config from "./config";
+import {config} from "./config";
 
 const _app: {
     renderer: Renderer,

@@ -4,6 +4,12 @@ const storeEvent = new utils.EventEmitter()
 
 let storeHandle: any;
 
+export interface Store {
+    __type__: string
+
+    [key: string]: any
+}
+
 const createStore = (store: Store, name = "default") => {
     const queue = new WeakSet()
     const handle = {

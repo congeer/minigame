@@ -1,6 +1,31 @@
 import {Assets} from "pixi.js";
 
-import config, {installFont} from "./config";
+import {config, installFont} from "./config";
+
+export interface FileInfo {
+    name: string;
+    path: string;
+    type: string;
+    version?: string;
+}
+
+export interface Loader {
+    promises: Promise<any>[];
+    fileList: FileInfo[];
+    fileLoaded: number;
+
+    reset(): void;
+
+    load(file: FileInfo): void;
+
+    load(name: string, path: string): void;
+
+    result(): Promise<any>;
+}
+
+interface LoaderFn {
+    (file: FileInfo): Promise<void>
+}
 
 const loadFont: LoaderFn = async (file) => {
     const font = await config.adapter.loadFont(file);
@@ -42,7 +67,7 @@ const loadLocal: LoaderFn = async ({name, path}) => {
     loader.fileLoaded++;
 }
 
-const loader: Loader = {
+export const loader: Loader = {
     promises: [],
     fileList: [],
     fileLoaded: 0,
@@ -52,7 +77,7 @@ const loader: Loader = {
         loader.fileList = [];
         loader.fileLoaded = 0;
     },
-    load(file: FileInfo | string, arg1?: string, arg2?: string) {
+    load(file: FileInfo | string, arg1?: string) {
         if (typeof file === 'string') {
             file = {
                 name: arguments[0],

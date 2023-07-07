@@ -1,4 +1,6 @@
-import Adapter from "../adapter";
+import {Adapter} from "../adapter";
+import type {FileInfo} from "../assets";
+import type {ShareOptions} from "../share";
 import {access, getFileByType, mkdir} from "./fs";
 import {root, wx} from "./wx";
 

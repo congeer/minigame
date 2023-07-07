@@ -1,6 +1,27 @@
-import config from "./config";
+import {config} from "./config";
 
-const ShareManager: ShareManager = {
+export interface ShareOptions {
+    title?: string;
+    imageUrl?: string;
+    query?: string;
+    success?: () => void;
+    fail?: () => void;
+    complete?: () => void;
+}
+
+interface IShareManager {
+    titles: string[];
+
+    getTitle(): string;
+
+    addTitle(titles: string[]): void;
+
+    clearTitle(): void;
+
+    share(options: ShareOptions): void;
+}
+
+export const ShareManager: IShareManager = {
     titles: [],
     getTitle: () => {
         if (ShareManager.titles.length === 0) {
@@ -21,5 +42,3 @@ const ShareManager: ShareManager = {
         config.adapter.share(options)
     }
 }
-
-export default ShareManager
