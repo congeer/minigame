@@ -1,6 +1,6 @@
 import {Container, ObservablePoint, Sprite, Text} from "pixi.js";
 
-type Option = {
+export type RichTextOption = {
     text?: string;
 
     style?: any;
@@ -12,14 +12,14 @@ type Option = {
 
 export class RichText extends Container {
 
-    opts: Option;
+    opts: RichTextOption;
     blocks: { tag: string, text: string }[] = [];
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    constructor(opts?: Option) {
+    constructor(opts?: RichTextOption) {
         super();
         this.opts = opts ?? {};
         if (this.opts.style && !this.opts.styles['default']) {
@@ -32,7 +32,7 @@ export class RichText extends Container {
         this.drawSelf(this.opts);
     }
 
-    reDraw(opts: Option) {
+    reDraw(opts: RichTextOption) {
         this.opts = {...this.opts, ...opts};
         this.removeChildren();
         this.handlerBlocks(this.opts);
@@ -59,7 +59,7 @@ export class RichText extends Container {
         this.reDraw(this.opts);
     }
 
-    handlerBlocks(opts: Option) {
+    handlerBlocks(opts: RichTextOption) {
         const text = opts.text;
         const blocks = [];
         let temp = "";
@@ -112,7 +112,7 @@ export class RichText extends Container {
         return;
     }
 
-    protected drawSelf(opts: Option) {
+    protected drawSelf(opts: RichTextOption) {
         const size = opts.styles["default"].fontSize;
         let x = 0;
         let y = size / 2;

@@ -2,13 +2,13 @@ import {DisplayObject} from "@pixi/display";
 import {Container, Sprite} from "pixi.js";
 import {config} from "./config";
 
-export const createPromise = function <T>(): [Promise<T>, (v: T | PromiseLike<T>) => void, (v?: Error) => void] {
-    let resolve: (v: T | PromiseLike<T>) => void = () => {
+export const createPromise = function <T>(): [Promise<T | undefined>, (v?: T | PromiseLike<T>) => void, (v?: Error) => void] {
+    let resolve: (v?: T | PromiseLike<T>) => void = () => {
     }
     let reject: (v?: Error) => void = () => {
     }
 
-    const promise = new Promise<T>((_resolve, _reject) => {
+    const promise = new Promise<T | undefined>((_resolve, _reject) => {
         resolve = _resolve
         reject = _reject
     })
