@@ -43,10 +43,6 @@ export const unit = (num: number, multiplier?: number) => {
     }
 }
 
-export function alignGlobal(target: DisplayObject, opts?: Align) {
-    align(target, undefined, opts)
-}
-
 export interface Align {
     direction?: 'landscape' | 'portrait'
     top?: number
@@ -55,7 +51,11 @@ export interface Align {
     bottom?: number
 }
 
-export function align<T extends Container>(target: DisplayObject, parent?: T, opts?: Align) {
+export function align<T extends Container>(target: DisplayObject, parent?: T | Align, opts?: Align) {
+    if (parent && !(parent instanceof Container)) {
+        opts = parent
+        parent = undefined
+    }
     const delta = {x: 0, y: 0}
     const rect = target.getBounds(false)
     const {direction} = opts || {}

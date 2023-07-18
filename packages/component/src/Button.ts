@@ -29,7 +29,7 @@ export class Button extends Container {
     constructor(opts?: Options) {
         super()
         this.opts = opts ?? {};
-        if (this.opts.text) {
+        if (!this.opts.text) {
             this.opts.text = "Button";
         }
         this.draw(this.opts);
