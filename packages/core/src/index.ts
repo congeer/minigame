@@ -1,25 +1,27 @@
 import './env';
 
-export * from "./config";
+export * from './config';
 
-export * from "./config";
+export * from './config';
 
-export * from "./assets";
+export * from './assets';
 
-export * from "./core";
+export * from './core';
 
-export * from './sound'
+export * from './sound';
 
-export * from "./store";
+export * from './store';
 
-export * from "./event";
+export * from './event';
 
-export * from "./share";
+export * from './share';
 
-export * from "./utils";
+export * from './ad';
 
-export * from "./wechat"
+export * from './utils';
 
-export * from "./parser"
+export * from './wechat';
+
+export * from './parser';
 
 

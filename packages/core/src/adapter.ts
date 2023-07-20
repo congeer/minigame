@@ -1,4 +1,5 @@
 import {Assets} from "pixi.js";
+import {AdOptions} from "./ad";
 import type {FileInfo} from "./assets";
 
 export interface ShareOptions {
@@ -12,9 +13,14 @@ export interface ShareOptions {
 
 export interface IAdapter {
     baseURL: string;
-    shareFn?: (opts: ShareOptions) => void
 
     share(opts: ShareOptions): any
+
+    showAd(key?: string): any
+
+    initAds(options: { [key: string]: AdOptions }): any
+
+    initAd(option: AdOptions): any
 
     getCanvas(): HTMLCanvasElement
 
@@ -29,15 +35,25 @@ export class Adapter implements IAdapter {
 
     baseURL: string;
 
-    shareFn?: (opts: ShareOptions) => void
-
     constructor(baseUrl: string) {
         this.baseURL = baseUrl;
     }
 
     share(opts: ShareOptions) {
-        return this.shareFn && this.shareFn(opts);
     }
+
+    showAd(key?: string): any {
+        // do nothing
+    }
+
+    initAds(options: { [key: string]: AdOptions }): any {
+        // do nothing
+    }
+
+    initAd(option: AdOptions): any {
+        // do nothing
+    }
+
 
     getCanvas() {
         const canvas = document.createElement('canvas');
@@ -83,6 +99,10 @@ export class WebAdapter extends Adapter {
     constructor(baseUrl: string) {
         super(baseUrl);
         window.addEventListener("resize", this.onresize.bind(this));
+    }
+
+    share(opts: ShareOptions) {
+        super.share(opts);
     }
 
     destroy() {

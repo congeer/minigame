@@ -1,3 +1,4 @@
+import {AdOptions} from "../ad";
 import {Adapter} from "../adapter";
 import type {FileInfo} from "../assets";
 import type {ShareOptions} from "../share";
@@ -6,9 +7,54 @@ import {root, wx} from "./wx";
 
 class WechatAdapter extends Adapter {
 
+    adMap: { [key: string]: WechatMinigame.RewardedVideoAd } = {};
+
+    defaultAd: WechatMinigame.RewardedVideoAd | undefined;
+
     constructor(url: string) {
         super(url);
 
+    }
+
+    initAds(options: { [key: string]: AdOptions }): any {
+        const cp = options as { [key: string]: AdOptions };
+        for (let key in cp) {
+            const option = cp[key];
+            const ad = this.initOneAd(option);
+            this.adMap[key] = ad;
+            if (key === 'default') {
+                this.defaultAd = ad;
+            }
+        }
+    }
+
+    initAd(option: AdOptions): any {
+        this.defaultAd = this.initOneAd(option);
+    }
+
+    private initOneAd(option: AdOptions) {
+        const ad = wx.createRewardedVideoAd(option.channelOptions.wechat);
+        ad.onClose((res) => {
+            if (res.isEnded) {
+                option.success?.();
+            } else {
+                option.fail?.();
+            }
+            option.complete?.();
+        })
+        ad.onError((err) => {
+            console.error(err);
+            option.fail?.();
+            option.complete?.();
+        })
+        return ad;
+    }
+
+    showAd(key?: string): any {
+        const ad = key ? this.adMap[key] : this.defaultAd;
+        ad?.show().catch(() => {
+            ad.load().then(() => ad.show());
+        })
     }
 
     share(opts: ShareOptions) {
