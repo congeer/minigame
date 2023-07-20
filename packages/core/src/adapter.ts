@@ -16,7 +16,7 @@ export interface IAdapter {
 
     share(opts: ShareOptions): any
 
-    showAd(key?: string): any
+    showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any
 
     initAds(options: { [key: string]: AdOptions }): any
 
@@ -42,7 +42,7 @@ export class Adapter implements IAdapter {
     share(opts: ShareOptions) {
     }
 
-    showAd(key?: string): any {
+    showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any {
         // do nothing
     }
 

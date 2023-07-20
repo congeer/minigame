@@ -21,6 +21,9 @@ class WechatAdapter extends Adapter {
         for (let key in cp) {
             const option = cp[key];
             const ad = this.initOneAd(option);
+            if (!ad) {
+                continue;
+            }
             this.adMap[key] = ad;
             if (key === 'default') {
                 this.defaultAd = ad;
@@ -33,28 +36,35 @@ class WechatAdapter extends Adapter {
     }
 
     private initOneAd(option: AdOptions) {
+        if (!option.channelOptions || !option.channelOptions.wechat) {
+            return;
+        }
         const ad = wx.createRewardedVideoAd(option.channelOptions.wechat);
-        ad.onClose((res) => {
-            if (res.isEnded) {
-                option.success?.();
-            } else {
-                option.fail?.();
-            }
-            option.complete?.();
-        })
-        ad.onError((err) => {
-            console.error(err);
-            option.fail?.();
-            option.complete?.();
-        })
         return ad;
     }
 
-    showAd(key?: string): any {
+    showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any {
         const ad = key ? this.adMap[key] : this.defaultAd;
-        ad?.show().catch(() => {
-            ad.load().then(() => ad.show());
-        })
+        if (ad) {
+            const onClose: WechatMinigame.RewardedVideoAdOnCloseCallback = (res) => {
+                if (res.isEnded) {
+                    success?.();
+                } else {
+                    fail?.();
+                }
+                complete?.();
+            };
+            ad.onClose(onClose)
+            const onError: WechatMinigame.GridAdOnErrorCallback = (err) => {
+                console.error(err);
+                fail?.();
+                complete?.();
+            };
+            ad.onError(onError)
+            ad?.show().catch(() => {
+                ad.load().then(() => ad.show());
+            })
+        }
     }
 
     share(opts: ShareOptions) {

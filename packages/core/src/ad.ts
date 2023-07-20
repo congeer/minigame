@@ -1,10 +1,7 @@
 import {config} from "./config";
 
 export interface AdOptions {
-    channelOptions: { wechat: any, android: any, web: any, ios: any, mobile: any };
-    success?: () => void;
-    fail?: () => void;
-    complete?: () => void;
+    channelOptions?: { wechat?: any, android?: any, web?: any, ios?: any, mobile?: any };
 }
 
 interface IAdManager {
@@ -14,7 +11,7 @@ interface IAdManager {
 
     init(options: AdOptions): void;
 
-    show(key?: string): void;
+    show(key?: string, success?: Function, fail?: Function, complete?: Function): void;
 }
 
 export const AdManager: IAdManager = {
@@ -27,7 +24,7 @@ export const AdManager: IAdManager = {
             config.adapter.initAds(options as { [key: string]: AdOptions })
         }
     },
-    show: (key?) => {
-        config.adapter.showAd(key)
+    show: (key?, success?, fail?, complete?) => {
+        config.adapter.showAd(key, success, fail, complete)
     }
 }
