@@ -15,7 +15,7 @@ interface IAdManager {
 
     init(options: AdOptions): void;
 
-    show(key?: string, success?: Function, fail?: Function, complete?: Function): void;
+    show(key?: string): Promise<void>;
 }
 
 export const AdManager: IAdManager = {
@@ -28,7 +28,7 @@ export const AdManager: IAdManager = {
             config.adapter.initAd(options)
         }
     },
-    show: (key?, success?, fail?, complete?) => {
-        config.adapter.showAd(key, success, fail, complete)
+    show: (key?): Promise<void> => {
+        return config.adapter.showAd(key)
     }
 }

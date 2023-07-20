@@ -41,28 +41,31 @@ class WechatAdapter extends Adapter {
         return wx.createRewardedVideoAd(option.wechat);
     }
 
-    showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any {
+    showAd(key?: string): Promise<void> {
         const ad = key ? this.adMap[key] : this.defaultAd;
-        if (ad) {
-            const onClose: WechatMinigame.RewardedVideoAdOnCloseCallback = (res) => {
-                if (res.isEnded) {
-                    success?.();
-                } else {
-                    fail?.();
-                }
-                complete?.();
-            };
-            ad.onClose(onClose)
-            const onError: WechatMinigame.GridAdOnErrorCallback = (err) => {
-                console.error(err);
-                fail?.();
-                complete?.();
-            };
-            ad.onError(onError)
-            ad?.show().catch(() => {
-                ad.load().then(() => ad.show());
-            })
-        }
+        return new Promise<void>((resolve, reject) => {
+            if (ad) {
+                const onClose: WechatMinigame.RewardedVideoAdOnCloseCallback = (res) => {
+                    ad.offClose(onClose);
+                    ad.offError(onError);
+                    if (res.isEnded) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                };
+                const onError: WechatMinigame.GridAdOnErrorCallback = (err) => {
+                    ad.offClose(onClose);
+                    ad.offError(onError);
+                    reject(err);
+                };
+                ad.onClose(onClose)
+                ad.onError(onError)
+                ad?.show().catch(() => {
+                    ad.load().then(() => ad.show());
+                })
+            }
+        });
     }
 
     share(opts: ShareOptions) {
