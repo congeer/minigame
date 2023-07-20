@@ -16,16 +16,15 @@ class WechatAdapter extends Adapter {
 
     }
 
-    initAds(options: { [key: string]: AdOptions }): any {
-        const cp = options as { [key: string]: AdOptions };
-        for (let key in cp) {
-            const option = cp[key];
-            const ad = this.initOneAd(option);
+    initAds(options: { key: string, options: AdOptions }[]): any {
+        for (let i = 0; i < options.length; i++) {
+            const option = options[i];
+            const ad = this.initOneAd(option.options);
             if (!ad) {
                 continue;
             }
-            this.adMap[key] = ad;
-            if (key === 'default') {
+            this.adMap[option.key] = ad;
+            if (option.key === 'default') {
                 this.defaultAd = ad;
             }
         }
@@ -36,11 +35,10 @@ class WechatAdapter extends Adapter {
     }
 
     private initOneAd(option: AdOptions) {
-        if (!option.channelOptions || !option.channelOptions.wechat) {
+        if (!option.wechat) {
             return;
         }
-        const ad = wx.createRewardedVideoAd(option.channelOptions.wechat);
-        return ad;
+        return wx.createRewardedVideoAd(option.wechat);
     }
 
     showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any {

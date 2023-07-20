@@ -18,7 +18,7 @@ export interface IAdapter {
 
     showAd(key?: string, success?: Function, fail?: Function, complete?: Function): any
 
-    initAds(options: { [key: string]: AdOptions }): any
+    initAds(options: { key: string, options: AdOptions }[]): any
 
     initAd(option: AdOptions): any
 
@@ -46,7 +46,7 @@ export class Adapter implements IAdapter {
         // do nothing
     }
 
-    initAds(options: { [key: string]: AdOptions }): any {
+    initAds(options: { key: string, options: AdOptions }[]): any {
         // do nothing
     }
 

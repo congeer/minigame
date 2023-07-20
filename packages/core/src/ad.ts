@@ -1,11 +1,15 @@
 import {config} from "./config";
 
 export interface AdOptions {
-    channelOptions?: { wechat?: any, android?: any, web?: any, ios?: any, mobile?: any };
+    wechat?: any,
+    android?: any,
+    web?: any,
+    ios?: any,
+    mobile?: any
 }
 
 interface IAdManager {
-    options: { [key: string]: AdOptions } | AdOptions;
+    options: { key: string, options: AdOptions }[] | AdOptions;
 
     init(options: { [key: string]: AdOptions }): void;
 
@@ -18,10 +22,10 @@ export const AdManager: IAdManager = {
     options: {},
     init: (options) => {
         AdManager.options = options;
-        if (options.channelOptions) {
-            config.adapter.initAd(options as AdOptions)
+        if (options instanceof Array) {
+            config.adapter.initAds(options)
         } else {
-            config.adapter.initAds(options as { [key: string]: AdOptions })
+            config.adapter.initAd(options)
         }
     },
     show: (key?, success?, fail?, complete?) => {
