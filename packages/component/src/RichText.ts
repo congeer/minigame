@@ -10,6 +10,11 @@ export type RichTextOption = {
     maxWidth?: number;
 }
 
+const defaultOptions: RichTextOption = {
+    text: '',
+    styles: {},
+}
+
 export class RichText extends Container {
 
     opts: RichTextOption;
@@ -21,7 +26,7 @@ export class RichText extends Container {
 
     constructor(opts?: RichTextOption) {
         super();
-        this.opts = opts ?? {};
+        this.opts = {...defaultOptions, ...opts};
         if (this.opts.style && !this.opts.styles['default']) {
             this.opts.styles['default'] = this.opts.style;
         }
