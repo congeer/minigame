@@ -2,12 +2,12 @@ import {ObservablePoint} from "pixi.js";
 import {Shape, ShapeOptions} from "./Shape";
 
 
-type Options = {
+export type RectOptions = {
     width?: number,
     height?: number,
 } & ShapeOptions
 
-export class Rect extends Shape<Options> {
+export class Rect extends Shape<RectOptions> {
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
