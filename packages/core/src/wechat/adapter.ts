@@ -78,7 +78,8 @@ class WechatAdapter extends Adapter {
 
     async saveFile(file: FileInfo): Promise<string> {
         const url = await super.saveFile(file);
-        const resPath = await getResPath(file.type, getVerName(file.name, file.version));
+        const name = file.type === "font" || file.type === "sound" ? file.name : getVerName(file.name, file.version);
+        const resPath = await getResPath(file.type, name);
         await getFileByType(file.type, resPath, url, file.version);
         return `${root}/${resPath}`;
     }
