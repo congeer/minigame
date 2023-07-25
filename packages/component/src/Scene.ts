@@ -1,5 +1,6 @@
-import {app} from "@minigame/core";
-import {Container} from "pixi.js";
+import {align, app} from "@minigame/core";
+import {Align} from "@minigame/core/src";
+import {Container, DisplayObject} from "pixi.js";
 import {Rect} from "./Rect";
 
 const scene: { [key: string]: typeof Scene } = {}
@@ -63,9 +64,19 @@ type BackGroundProps = {
     color?: number
 }
 
+type ChildCache = {
+    child: DisplayObject,
+    parent?: Container | undefined,
+    align?: Align
+}
+
 export class Scene extends Container {
 
     static defaultColor = 0x000000
+
+    hideFn: (() => void) | void = undefined;
+
+    childrenCache: ChildCache[] = [];
 
     constructor(opts?: BackGroundProps) {
         super();
@@ -95,18 +106,35 @@ export class Scene extends Container {
         app.stage.removeChild(this);
     }
 
-    draw() {
+    view(...args: any[]): (() => void) | void {
+    }
+
+    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align) {
+        if (parent && !(parent instanceof Container)) {
+            alignOpt = parent
+            parent = undefined
+        }
+        this.addChild(child)
+        if (!parent && !alignOpt) return
+        this.childrenCache.push({child, parent, align: alignOpt})
     }
 
     show(...args: any[]) {
+        this.childrenCache = [];
         this.reset();
         this.visible = true;
-        this.draw();
+        this.hideFn = this.view(...args);
+        for (let i = this.childrenCache.length - 1; i >= 0; i--) {
+            const {child, parent, align: opt} = this.childrenCache[i]
+            align(child, parent, opt)
+        }
     }
 
     hide() {
+        this.hideFn && this.hideFn();
         this.visible = false;
         this.reset();
+        this.childrenCache = [];
     }
 
 }
