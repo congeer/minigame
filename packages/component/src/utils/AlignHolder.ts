@@ -1,6 +1,5 @@
-import {Align, align} from "@minigame/core";
+import {align, Align} from "@minigame/core";
 import {Container as PIXIContainer, DisplayObject} from "pixi.js";
-
 
 export type ChildCache = {
     child: DisplayObject,
@@ -8,22 +7,35 @@ export type ChildCache = {
     align?: Align
 }
 
-export class Container extends PIXIContainer {
+export class AlignHolder {
+
+    base: PIXIContainer;
+
+    constructor(base: PIXIContainer) {
+        this.base = base;
+    }
 
     childAlignCache: ChildCache[] = [];
 
-    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
-        const ret = this.addChild(child);
+    append(child: DisplayObject, parent?: PIXIContainer | Align, alignOpt?: Align): DisplayObject {
+        const ret = this.base.addChild(child);
         if (!parent && !alignOpt) return ret;
         if (parent && !(parent instanceof PIXIContainer)) {
             alignOpt = parent;
-            parent = this;
+            parent = this.base;
         }
         this.childAlignCache.push({child, parent, align: alignOpt});
-        this.childAlignCache.forEach(({child, parent, align: opt}) => {
-            align(child, parent, opt);
-        })
+        this.align();
         return ret;
     }
 
+    remove(child: DisplayObject) {
+        this.childAlignCache = this.childAlignCache.filter(({child: c}) => c !== child);
+    }
+
+    align() {
+        this.childAlignCache.forEach(({child, parent, align: opt}) => {
+            align(child, parent, opt);
+        })
+    }
 }

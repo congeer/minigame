@@ -26,47 +26,47 @@ export abstract class Shape<T extends ShapeOptions> extends Graphics {
     constructor(opts?: T) {
         super();
         this.opts = {...defaultOptions, ...opts} as T;
-        this.view();
+        this.draw();
     }
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    view() {
-        this.doView();
+    draw() {
+        this.drawer();
         this.zIndex = this.opts.zIndex ?? -1;
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }
 
-    protected abstract doView(): void;
+    protected abstract drawer(): void;
 
-    protected review(opts?: T) {
+    redraw(opts?: T) {
         this.opts = {...this.opts, ...opts}
         this.removeChildren();
         this.removeAllListeners();
         this.clear();
-        this.view();
+        this.draw();
     }
 
     set backColor(backColor: number) {
-        this.review({backColor} as T);
+        this.redraw({backColor} as T);
     }
 
     set borderColor(borderColor: number) {
-        this.review({borderColor} as T);
+        this.redraw({borderColor} as T);
     }
 
     set borderAlpha(borderAlpha: number) {
-        this.review({borderAlpha} as T);
+        this.redraw({borderAlpha} as T);
     }
 
     set backAlpha(backAlpha: number) {
-        this.review({backAlpha} as T);
+        this.redraw({backAlpha} as T);
     }
 
     set borderWidth(borderWidth: number) {
-        this.review({borderWidth} as T);
+        this.redraw({borderWidth} as T);
     }
 
 }

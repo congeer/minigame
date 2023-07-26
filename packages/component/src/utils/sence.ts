@@ -1,7 +1,4 @@
-import {Align, app} from "@minigame/core";
-import {DisplayObject} from "pixi.js";
-import {Container} from "./Container";
-import {Rect} from "./Rect";
+import {Scene} from "../component";
 
 const sceneMap: { [key: string]: new () => Scene } = {}
 
@@ -58,68 +55,4 @@ export const removeScene = (index: number) => {
         current.cursor.destroy();
         stack.splice(index, 1)
     }
-}
-
-type BackGroundProps = {
-    color?: number
-}
-
-type ChildCache = {
-    child: DisplayObject,
-    parent?: Container | undefined,
-    align?: Align
-}
-
-export abstract class Scene extends Container {
-
-    static defaultColor = 0x000000
-
-    hideFn: (() => void) | void = undefined;
-
-    childAlignCache: ChildCache[] = [];
-
-    protected constructor(opts?: BackGroundProps) {
-        super();
-        const background = new Rect({
-            width: app.screen.width,
-            height: app.screen.height,
-            backColor: opts?.color ?? Scene.defaultColor,
-            zIndex: -1
-        });
-        this.addChild(background);
-        app.stage.addChild(this)
-    }
-
-    set color(color: number) {
-        const background = this.children[0] as Rect<any>;
-        background.backColor = color;
-    }
-
-    reset() {
-        if (this.children.length > 1) {
-            this.removeChildren(0)
-        }
-    }
-
-    destroy() {
-        this.hide();
-        app.stage.removeChild(this);
-    }
-
-    protected abstract view(...args: any[]): (() => void) | void
-
-    show(...args: any[]) {
-        this.childAlignCache = [];
-        this.reset();
-        this.visible = true;
-        this.hideFn = this.view(...args);
-    }
-
-    hide() {
-        this.hideFn && this.hideFn();
-        this.visible = false;
-        this.reset();
-        this.childAlignCache = [];
-    }
-
 }

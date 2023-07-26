@@ -6,8 +6,8 @@ export class ScrollContainer extends Rect {
 
     content?: Container;
 
-    protected doView() {
-        super.doView();
+    protected drawer() {
+        super.drawer();
 
         const content = new Container();
         this.content = content;

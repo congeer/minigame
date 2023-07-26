@@ -6,7 +6,7 @@ export type CircleOptions = {
 
 export class Circle extends Shape<CircleOptions> {
 
-    protected doView() {
+    protected drawer() {
         let radius = this.opts.radius;
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
@@ -18,7 +18,7 @@ export class Circle extends Shape<CircleOptions> {
     }
 
     set radius(radius: number) {
-        this.review({radius});
+        this.redraw({radius});
     }
 
 }

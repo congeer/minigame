@@ -18,6 +18,8 @@ export interface Area {
 
 interface Config {
     name: string;
+    scale: number;
+    direction?: "horizontal" | "vertical";
     platform: Platform;
     version: string;
     resource: string;
@@ -28,8 +30,20 @@ interface Config {
     baseURL: string;
 }
 
+const defaultScale = 3 / 4;
+
+let innerWidth = window.innerWidth;
+let innerHeight = window.innerHeight;
+
+if (innerWidth > innerHeight * defaultScale) {
+    innerWidth = innerHeight * defaultScale;
+}
+
+
 export const config: Config = {
     name: "game",
+    scale: defaultScale,
+    direction: "vertical",
     platform: Platform.Web,
     version: "0.0.0",
     resource: "0.0.0",
@@ -99,6 +113,31 @@ export const install = (e: ConfigOption) => {
     Object.keys(e).forEach(key => {
         // @ts-ignore
         config[key] = e[key];
+        switch (key) {
+            case 'unit':
+                setUnit(config.safeArea);
+                break;
+            case 'safeArea':
+                setSafeArea(e[key]);
+                break;
+            case 'scale':
+                // @ts-ignore
+                const scale = e[key] as number;
+                innerWidth = window.innerWidth;
+                innerHeight = window.innerHeight;
+                if (config.direction === 'horizontal') {
+                    if (innerHeight > innerWidth) {
+                        innerHeight = innerWidth / scale;
+                    }
+                } else {
+                    if (innerWidth > innerHeight) {
+                        innerWidth = innerHeight * scale;
+                    }
+                }
+        }
+        if (key === 'safeArea') {
+            setSafeArea(e[key]);
+        }
     })
 }
 

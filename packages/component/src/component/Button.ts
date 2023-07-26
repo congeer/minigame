@@ -1,5 +1,5 @@
 import {unit} from "@minigame/core";
-import {FederatedPointerEvent, ObservablePoint, Text, TextStyle} from "pixi.js";
+import {FederatedPointerEvent, Text, TextStyle} from "pixi.js";
 import {Rect, RectOptions} from "./Rect";
 
 
@@ -18,8 +18,6 @@ export class Button extends Rect<ButtonOptions> {
     static defaultBorderColor = 0xffffff
     static defaultBorderWidth = 0
 
-    textComponent: Text;
-
     constructor(opts?: ButtonOptions) {
         super({
             borderColor: Button.defaultBorderColor,
@@ -35,37 +33,35 @@ export class Button extends Rect<ButtonOptions> {
         this.opts.fontStyle = this.opts.fontStyle ?? {
             fill: this.opts.fontColor ?? 0xffffff, fontSize: unit(60),
         };
-        this.textComponent = new Text(this.opts.text, this.opts.fontStyle);
-        this.opts = {
-            ...this.opts,
-            width: this.opts.width ?? this.textComponent.width + unit(20),
-            height: this.opts.height ?? this.textComponent.height + unit(20)
-        }
+        this.view();
+        this.redraw();
     }
 
-    anchor = new ObservablePoint(() => {
-        this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
-    }, this, 0, 0);
-
-    protected doView() {
-        super.doView();
+    protected view() {
+        const text = new Text(this.opts.text, this.opts.fontStyle);
+        this.opts = {
+            ...this.opts,
+            width: this.opts.width ?? text.width + unit(25),
+            height: this.opts.height ?? text.height + unit(25)
+        }
         this.eventMode = 'static';
         if (this.opts.onClick) {
             this.on('pointerup', this.opts.onClick)
         }
-        if (this.textComponent) {
-            this.append(this.textComponent, {center: 0, middle: 0})
-        }
+        this.append(text, {})
+    }
+
+    redraw(opts?: ButtonOptions) {
+        super.redraw(opts);
+        this.view();
     }
 
     set text(text: string) {
-        this.textComponent = new Text(text, this.opts.fontStyle);
-        this.review({text})
+        this.redraw({text})
     }
 
     set fontStyle(fontStyle: TextStyle) {
-        this.textComponent = new Text(this.opts.text, fontStyle);
-        this.review({fontStyle})
+        this.redraw({fontStyle: {...this.opts.fontStyle, ...fontStyle}})
     }
 
     set onClick(callback: (event: FederatedPointerEvent) => void) {
@@ -74,11 +70,11 @@ export class Button extends Rect<ButtonOptions> {
     }
 
     set buttonHeight(height: number) {
-        this.review({height})
+        this.redraw({height})
     }
 
     set buttonWidth(width: number) {
-        this.review({width})
+        this.redraw({width})
     }
 
 }

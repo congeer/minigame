@@ -14,7 +14,7 @@ export class Rect<T extends RectOptions = RectOptions> extends Shape<T> {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    protected doView() {
+    protected drawer() {
         if (!this.opts.width || !this.opts.height) {
             return;
         }
@@ -32,16 +32,16 @@ export class Rect<T extends RectOptions = RectOptions> extends Shape<T> {
         this.endFill();
     }
 
-    set height(height: number) {
-        this.review({height} as T);
+    set rectHeight(height: number) {
+        this.redraw({height} as T);
     }
 
-    set width(width: number) {
-        this.review({width} as T);
+    set rectWidth(width: number) {
+        this.redraw({width} as T);
     }
 
     set round(round: number) {
-        this.review({round} as T);
+        this.redraw({round} as T);
     }
 
 }

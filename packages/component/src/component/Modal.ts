@@ -1,8 +1,9 @@
 import {align, app, unit} from "@minigame/core";
-import {Container, DisplayObject} from "pixi.js";
+import {Container as PIXIContainer, DisplayObject} from "pixi.js";
+import {Container} from "./Container";
 import {Rect, RectOptions} from "./Rect";
 
-type Options = {
+export type ModalOptions = {
     title?: string
     border?: number
     color?: number
@@ -12,10 +13,10 @@ type Options = {
     onClose?: () => any
     onOpen?: () => any
 
-    parent?: Container
+    parent?: PIXIContainer
 }
 
-export class Modal extends Container {
+export class Modal extends Rect {
 
     static defaultBorder = 0xffffff
 
@@ -31,29 +32,25 @@ export class Modal extends Container {
 
     private isOpen: boolean = false
 
-    private parentContainer: Container
+    private parentContainer: PIXIContainer
 
     private contentMask: Rect
 
-    constructor(opts?: Options) {
-        super()
-        this.onClose = opts?.onClose;
-        this.onOpen = opts?.onOpen;
-        this.parentContainer = opts?.parent ?? app.stage;
-
-        const maskArea = new Rect({
+    constructor(opts?: ModalOptions) {
+        super({
             width: app.screen.width,
             height: app.screen.height,
             backColor: 0x000000,
             backAlpha: 0.5
         })
-        super.addChild(maskArea)
+        this.onClose = opts?.onClose;
+        this.onOpen = opts?.onOpen;
+        this.parentContainer = opts?.parent ?? app.stage;
 
         const scale = 0.8;
 
         const content = new Container();
-        content.interactive = true;
-        content.on('pointerdown', (e) => e.stopPropagation())
+        content.eventMode = 'none';
         const height = opts?.height ?? app.screen.height * scale * 0.8;
         this.content = content;
 

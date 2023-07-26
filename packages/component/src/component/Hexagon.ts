@@ -7,7 +7,7 @@ export type HexagonOptions = {
 
 export class Hexagon extends Shape<HexagonOptions> {
 
-    protected doView() {
+    protected drawer() {
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
         }
@@ -28,7 +28,7 @@ export class Hexagon extends Shape<HexagonOptions> {
     }
 
     set side(side: number) {
-        this.review({side})
+        this.redraw({side})
     }
 
 }
