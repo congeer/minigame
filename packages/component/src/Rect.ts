@@ -32,12 +32,16 @@ export class Rect<T extends RectOptions = RectOptions> extends Shape<T> {
         this.endFill();
     }
 
-    set rectHeight(height: number) {
+    set height(height: number) {
         this.review({height} as T);
     }
 
-    set rectWidth(width: number) {
+    set width(width: number) {
         this.review({width} as T);
+    }
+
+    set round(round: number) {
+        this.review({round} as T);
     }
 
 }
