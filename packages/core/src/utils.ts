@@ -57,6 +57,9 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
         opts = parent
         parent = undefined
     }
+    if (!opts) {
+        opts = {center: 0, middle: 0}
+    }
     const delta = {x: 0, y: 0}
     const rect = target.getBounds(false)
 
