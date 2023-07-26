@@ -48,8 +48,8 @@ export class Button extends Rect<ButtonOptions> {
 
         const text = new Text(this.opts.text, style);
 
-        this.width = this.opts.width ?? text.width + unit(20);
-        this.height = this.opts.height ?? text.height + unit(20);
+        this.rectWidth = this.opts.width ?? text.width + unit(20);
+        this.rectHeight = this.opts.height ?? text.height + unit(20);
 
         this.append(text, {center: 0, middle: 0})
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);

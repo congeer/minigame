@@ -52,14 +52,14 @@ export interface Align {
     middle?: number
 }
 
+const defaultAlign: Align = {center: 0, middle: 0}
+
 export function align<T extends Container>(target: DisplayObject, parent?: T | Align, opts?: Align) {
     if (parent && !(parent instanceof Container)) {
         opts = parent
         parent = undefined
     }
-    if (!opts) {
-        opts = {center: 0, middle: 0}
-    }
+    opts = {...defaultAlign, ...opts}
     const delta = {x: 0, y: 0}
     const rect = target.getBounds(false)
 
