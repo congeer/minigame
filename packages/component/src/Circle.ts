@@ -1,12 +1,12 @@
 import {Shape, ShapeOptions} from "./Shape";
 
-type CircleOptions = {
+export type CircleOptions = {
     radius: number,
 } & ShapeOptions
 
 export class Circle extends Shape<CircleOptions> {
 
-    protected doDraw() {
+    protected doView() {
         let radius = this.opts.radius;
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
@@ -18,7 +18,7 @@ export class Circle extends Shape<CircleOptions> {
     }
 
     set radius(radius: number) {
-        this.reDraw({radius});
+        this.review({radius});
     }
 
 }

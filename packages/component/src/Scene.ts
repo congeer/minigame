@@ -1,22 +1,22 @@
-import {align, app} from "@minigame/core";
-import {Align} from "@minigame/core/src";
-import {Container, DisplayObject} from "pixi.js";
+import {Align, app} from "@minigame/core";
+import {DisplayObject} from "pixi.js";
+import {Container} from "./Container";
 import {Rect} from "./Rect";
 
-const scene: { [key: string]: typeof Scene } = {}
+const sceneMap: { [key: string]: new () => Scene } = {}
 
 const stack: { cursor: Scene, args: any[] }[] = []
 
-export const registerScene = (name: string, constructor: typeof Scene) => {
-    scene[name] = constructor
+export const registerScene = (name: string, scene: new () => Scene) => {
+    sceneMap[name] = scene
 }
 
-export const registerScenes = (scenes: { [key: string]: typeof Scene }) => {
-    Object.assign(scene, scenes)
+export const registerScenes = (scenes: { [key: string]: new () => Scene }) => {
+    Object.assign(sceneMap, scenes)
 }
 
 export const navigateTo = (name: string, ...args: any[]) => {
-    const constructor = scene[name]
+    const constructor = sceneMap[name]
     if (constructor) {
         const cursor = new constructor();
         stack[stack.length - 1]?.cursor.hide()
@@ -26,7 +26,7 @@ export const navigateTo = (name: string, ...args: any[]) => {
 }
 
 export const replaceScene = (name: string, ...args: any[]) => {
-    const constructor = scene[name]
+    const constructor = sceneMap[name]
     if (constructor) {
         const pop = stack.pop();
         if (pop) {
@@ -70,15 +70,15 @@ type ChildCache = {
     align?: Align
 }
 
-export class Scene extends Container {
+export abstract class Scene extends Container {
 
     static defaultColor = 0x000000
 
     hideFn: (() => void) | void = undefined;
 
-    childrenCache: ChildCache[] = [];
+    childAlignCache: ChildCache[] = [];
 
-    constructor(opts?: BackGroundProps) {
+    protected constructor(opts?: BackGroundProps) {
         super();
         const background = new Rect({
             width: app.screen.width,
@@ -91,13 +91,13 @@ export class Scene extends Container {
     }
 
     set color(color: number) {
-        const background = this.children[0] as Rect;
+        const background = this.children[0] as Rect<any>;
         background.backColor = color;
     }
 
     reset() {
         if (this.children.length > 1) {
-            this.removeChildren(1)
+            this.removeChildren(0)
         }
     }
 
@@ -106,35 +106,20 @@ export class Scene extends Container {
         app.stage.removeChild(this);
     }
 
-    view(...args: any[]): (() => void) | void {
-    }
-
-    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align) {
-        if (parent && !(parent instanceof Container)) {
-            alignOpt = parent
-            parent = undefined
-        }
-        this.addChild(child)
-        if (!parent && !alignOpt) return
-        this.childrenCache.push({child, parent, align: alignOpt})
-    }
+    protected abstract view(...args: any[]): (() => void) | void
 
     show(...args: any[]) {
-        this.childrenCache = [];
+        this.childAlignCache = [];
         this.reset();
         this.visible = true;
         this.hideFn = this.view(...args);
-        for (let i = this.childrenCache.length - 1; i >= 0; i--) {
-            const {child, parent, align: opt} = this.childrenCache[i]
-            align(child, parent, opt)
-        }
     }
 
     hide() {
         this.hideFn && this.hideFn();
         this.visible = false;
         this.reset();
-        this.childrenCache = [];
+        this.childAlignCache = [];
     }
 
 }

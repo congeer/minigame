@@ -1,4 +1,5 @@
-import {Graphics, ObservablePoint} from "pixi.js";
+import {ObservablePoint} from "pixi.js";
+import {Graphics} from "./Graphics"
 
 
 export type ShapeOptions = {
@@ -18,54 +19,54 @@ const defaultOptions: ShapeOptions = {
     backAlpha: 1,
 }
 
-export class Shape<T extends ShapeOptions> extends Graphics {
+export abstract class Shape<T extends ShapeOptions> extends Graphics {
 
     opts: T;
 
     constructor(opts?: T) {
         super();
         this.opts = {...defaultOptions, ...opts} as T;
-        this.drawSelf();
+        this.view();
     }
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    drawSelf() {
-        this.doDraw();
+    view() {
+        this.doView();
         this.zIndex = this.opts.zIndex ?? -1;
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }
 
-    protected doDraw() {
+    protected abstract doView(): void;
 
-    }
-
-    protected reDraw(opts: T) {
+    protected review(opts?: T) {
         this.opts = {...this.opts, ...opts}
+        this.removeChildren();
+        this.removeAllListeners();
         this.clear();
-        this.drawSelf();
+        this.view();
     }
 
     set backColor(backColor: number) {
-        this.reDraw({backColor} as T);
+        this.review({backColor} as T);
     }
 
     set borderColor(borderColor: number) {
-        this.reDraw({borderColor} as T);
+        this.review({borderColor} as T);
     }
 
     set borderAlpha(borderAlpha: number) {
-        this.reDraw({borderAlpha} as T);
+        this.review({borderAlpha} as T);
     }
 
     set backAlpha(backAlpha: number) {
-        this.reDraw({backAlpha} as T);
+        this.review({backAlpha} as T);
     }
 
     set borderWidth(borderWidth: number) {
-        this.reDraw({borderWidth} as T);
+        this.review({borderWidth} as T);
     }
 
 }

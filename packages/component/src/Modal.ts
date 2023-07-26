@@ -1,6 +1,6 @@
 import {align, app, unit} from "@minigame/core";
 import {Container, DisplayObject} from "pixi.js";
-import {Rect} from "./Rect";
+import {Rect, RectOptions} from "./Rect";
 
 type Options = {
     title?: string
@@ -77,7 +77,7 @@ export class Modal extends Container {
         const contentMask = this.contentMask = new Rect({
             width: width,
             height: height,
-        })
+        } as RectOptions)
         content.addChild(contentMask);
         content.mask = contentMask;
 

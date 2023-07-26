@@ -1,4 +1,5 @@
-import {Container, ObservablePoint, Sprite, Text} from "pixi.js";
+import {ObservablePoint, Sprite, Text} from "pixi.js";
+import {Container} from "./Container";
 
 export type RichTextOption = {
     text?: string;
@@ -33,39 +34,39 @@ export class RichText extends Container {
         if (!this.opts.text) {
             return;
         }
-        this.handlerBlocks(this.opts);
-        this.drawSelf(this.opts);
+        this.handlerBlocks();
+        this.view();
     }
 
-    reDraw(opts: RichTextOption) {
+    review(opts?: RichTextOption) {
         this.opts = {...this.opts, ...opts};
         this.removeChildren();
-        this.handlerBlocks(this.opts);
-        this.drawSelf(this.opts);
+        this.handlerBlocks();
+        this.view();
     }
 
     set text(text: string) {
         this.opts = {...this.opts, text};
-        this.reDraw(this.opts);
+        this.review(this.opts);
     }
 
     set style(style: any) {
         this.opts.styles['default'] = style
-        this.reDraw(this.opts);
+        this.review(this.opts);
     }
 
     set styles(styles: any) {
         this.opts = {...this.opts, styles};
-        this.reDraw(this.opts);
+        this.review(this.opts);
     }
 
     set maxWidth(maxWidth: number) {
         this.opts = {...this.opts, maxWidth};
-        this.reDraw(this.opts);
+        this.review(this.opts);
     }
 
-    handlerBlocks(opts: RichTextOption) {
-        const text = opts.text;
+    handlerBlocks() {
+        const text = this.opts.text;
         const blocks = [];
         let temp = "";
 
@@ -117,8 +118,8 @@ export class RichText extends Container {
         return;
     }
 
-    protected drawSelf(opts: RichTextOption) {
-        const size = opts.styles["default"].fontSize;
+    protected view() {
+        const size = this.opts.styles["default"].fontSize;
         let x = 0;
         let y = size / 2;
         const lineHeight = 1.4 * size;
@@ -129,27 +130,27 @@ export class RichText extends Container {
             if (tag === "br") {
                 x = 0;
                 y += lineHeight;
-                this.addChild(new Container());
+                this.append(new Container());
             } else if (tag === "sprite") {
                 const sprite = Sprite.from(content);
                 sprite.anchor.y = 0.4
                 sprite.scale.set(Math.min(size * 1.2 / sprite.width, size * 1.2 / sprite.height));
-                if (opts.maxWidth && x + sprite.width > opts.maxWidth) {
+                if (this.opts.maxWidth && x + sprite.width > this.opts.maxWidth) {
                     x = 0;
                     y += lineHeight;
                 }
                 sprite.x = x;
                 sprite.y = y + lineHeight * 0.25;
                 x += sprite.width - size / 20;
-                this.addChild(sprite);
+                this.append(sprite);
             } else {
-                const styles = {...opts.styles['default'], ...opts.styles[tag]};
+                const styles = {...this.opts.styles['default'], ...this.opts.styles[tag]};
                 const text = new Text(content, styles);
                 text.anchor.y = 0.5
                 let left = "";
-                if (opts.maxWidth) {
-                    if (content.length > 1 && (x + 1.2 * size) < opts.maxWidth) {
-                        while ((x + text.width) > opts.maxWidth && content.length > 1) {
+                if (this.opts.maxWidth) {
+                    if (content.length > 1 && (x + 1.2 * size) < this.opts.maxWidth) {
+                        while ((x + text.width) > this.opts.maxWidth && content.length > 1) {
                             left = content.substring(content.length - 1) + left;
                             content = content.substring(0, content.length - 1);
                             text.text = content;
@@ -158,7 +159,7 @@ export class RichText extends Container {
                     if (left) {
                         this.blocks.splice(i + 1, 0, {tag: tag, text: left});
                     }
-                    if (x + text.width > opts.maxWidth) {
+                    if (x + text.width > this.opts.maxWidth) {
                         x = 0;
                         y += lineHeight;
                     }
@@ -170,7 +171,7 @@ export class RichText extends Container {
                     x = 0;
                     y += lineHeight;
                 }
-                this.addChild(text);
+                this.append(text);
             }
         }
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);

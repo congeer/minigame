@@ -1,13 +1,13 @@
 import {Shape, ShapeOptions} from "./Shape";
 
 
-type Options = {
+export type HexagonOptions = {
     side: number,
 } & ShapeOptions
 
-export class Hexagon extends Shape<Options> {
+export class Hexagon extends Shape<HexagonOptions> {
 
-    protected doDraw() {
+    protected doView() {
         if (this.opts?.borderWidth) {
             this.lineStyle(this.opts.borderWidth, this.opts.borderColor, this.opts.borderAlpha)
         }
@@ -28,7 +28,7 @@ export class Hexagon extends Shape<Options> {
     }
 
     set side(side: number) {
-        this.reDraw({side})
+        this.review({side})
     }
 
 }

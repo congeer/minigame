@@ -44,11 +44,12 @@ export const unit = (num: number, multiplier?: number) => {
 }
 
 export interface Align {
-    direction?: 'landscape' | 'portrait'
     top?: number
     left?: number
     right?: number
     bottom?: number
+    center?: number
+    middle?: number
 }
 
 export function align<T extends Container>(target: DisplayObject, parent?: T | Align, opts?: Align) {
@@ -58,7 +59,6 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
     }
     const delta = {x: 0, y: 0}
     const rect = target.getBounds(false)
-    const {direction} = opts || {}
 
     const p = parent ? parent.getBounds(false) : {...config.safeArea, x: 0, y: 0, height: config.safeArea.height};
 
@@ -67,8 +67,8 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
         delta.x = opts.left - rect.left + parentX
     } else if (opts?.right !== undefined) {
         delta.x = p.width - opts.right - rect.right + parentX
-    } else if (direction === 'portrait' || direction === undefined) {
-        delta.x = (p.width - rect.left - rect.right) / 2 + parentX
+    } else if (opts?.center !== undefined) {
+        delta.x = (p.width - rect.left - rect.right) / 2 + parentX + opts.center
     }
 
     const parentY = parent ? p.y : config.safeArea.top;
@@ -76,8 +76,8 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
         delta.y = opts.top - rect.top + parentY;
     } else if (opts?.bottom !== undefined) {
         delta.y = p.height - opts.bottom - rect.bottom + parentY
-    } else if (direction === 'landscape' || direction === undefined) {
-        delta.y = (p.height - rect.top - rect.bottom) / 2 + parentY
+    } else if (opts?.middle !== undefined) {
+        delta.y = (p.height - rect.top - rect.bottom) / 2 + parentY + opts.middle
     }
 
 

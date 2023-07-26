@@ -5,15 +5,16 @@ import {Shape, ShapeOptions} from "./Shape";
 export type RectOptions = {
     width?: number,
     height?: number,
+    round?: number
 } & ShapeOptions
 
-export class Rect extends Shape<RectOptions> {
+export class Rect<T extends RectOptions = RectOptions> extends Shape<T> {
 
     anchor = new ObservablePoint(() => {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    protected doDraw() {
+    protected doView() {
         if (!this.opts.width || !this.opts.height) {
             return;
         }
@@ -23,16 +24,20 @@ export class Rect extends Shape<RectOptions> {
         this.beginFill(this.opts.backColor, this.opts.backAlpha);
         const delta = this.opts.borderWidth ?? 0;
         const margin = delta / 2;
-        this.drawRect(margin, margin, this.opts.width - delta, this.opts.height - delta)
+        if (this.opts.round) {
+            this.drawRoundedRect(margin, margin, this.opts.width - delta, this.opts.height - delta, this.opts.round);
+        } else {
+            this.drawRect(margin, margin, this.opts.width - delta, this.opts.height - delta)
+        }
         this.endFill();
     }
 
     set rectHeight(height: number) {
-        this.reDraw({height});
+        this.review({height} as T);
     }
 
     set rectWidth(width: number) {
-        this.reDraw({width});
+        this.review({width} as T);
     }
 
 }
