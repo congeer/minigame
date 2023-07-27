@@ -23,9 +23,23 @@ function factory(type) {
     }
 }
 
+function factoryWheel(type) {
+    return ev => {
+        const touchEvent = new TouchEvent(type)
+        touchEvent.deltaX = ev.deltaX
+        touchEvent.deltaY = ev.deltaY
+        touchEvent.deltaZ = ev.deltaZ
+        touchEvent.timeStamp = ev.timeStamp
+        touchEvent.x = ev.x
+        touchEvent.y = ev.y
+        document.dispatch(touchEvent)
+    }
+}
+
 wx.onTouchStart(factory('touchstart'))
 wx.onTouchMove(factory('touchmove'))
 wx.onTouchEnd(factory('touchend'))
 wx.onTouchCancel(factory('touchcancel'))
+wx.onWheel(factoryWheel('mousewheel'))
 
 export default TouchEvent
