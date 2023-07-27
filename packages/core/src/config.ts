@@ -16,10 +16,12 @@ export interface Area {
     right: number;
 }
 
+type Direction = "horizontal" | "vertical";
+
 interface Config {
     name: string;
     scale: number;
-    direction?: "horizontal" | "vertical";
+    direction?: Direction;
     platform: Platform;
     version: string;
     resource: string;
@@ -35,6 +37,7 @@ interface Config {
 }
 
 const defaultScale = 3 / 4;
+let direction: Direction = "vertical";
 
 let innerWidth = window.innerWidth;
 let innerHeight = window.innerHeight;
@@ -43,28 +46,55 @@ if (innerWidth > innerHeight * defaultScale) {
     innerWidth = innerHeight * defaultScale;
 }
 
+let unit = innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000;
 
+let safeArea: Area = {
+    width: innerWidth,
+    height: innerHeight,
+    top: (window.innerHeight - innerHeight) / 2,
+    bottom: innerHeight,
+    left: (window.innerWidth - innerWidth) / 2,
+    right: innerWidth,
+}
 export const config: Config = {
     name: "game",
     scale: defaultScale,
-    direction: "vertical",
     platform: Platform.Web,
     version: "0.0.0",
     resource: "0.0.0",
     fonts: {},
-    unit: innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000,
     adapter: new WebAdapter(""),
-    innerWidth,
-    innerHeight,
-    innerX: (window.innerWidth - innerWidth) / 2,
-    innerY: (window.innerHeight - innerHeight) / 2,
-    safeArea: {
-        width: innerWidth,
-        height: innerHeight,
-        top: 0,
-        bottom: innerHeight,
-        left: 0,
-        right: innerWidth,
+
+    get safeArea() {
+        return safeArea;
+    },
+
+    set safeArea(area) {
+        safeArea = area;
+    },
+
+    get direction() {
+        return direction;
+    },
+
+    get unit() {
+        return unit;
+    },
+
+    get innerWidth() {
+        return innerWidth;
+    },
+
+    get innerHeight() {
+        return innerHeight;
+    },
+
+    get innerX() {
+        return (window.innerWidth - innerWidth) / 2;
+    },
+
+    get innerY() {
+        return (window.innerHeight - innerHeight) / 2
     },
 
     get baseURL() {
@@ -76,12 +106,14 @@ export const config: Config = {
     }
 }
 
-
-const setUnit = (safeArea: Area) => {
-    config.unit = safeArea.width > safeArea.height ? safeArea.height / 1000 : safeArea.width / 1000
+const updateUnit = () => {
+    unit = config.safeArea.width > config.safeArea.height ? config.safeArea.height / 1000 : config.safeArea.width / 1000
 }
 
-const setSafeArea = (safeArea?: Area) => {
+updateScale(defaultScale)
+
+
+const updateSafeArea = (sa?: Area) => {
     document.documentElement.style.setProperty('--sat', 'env(safe-area-inset-top)')
     document.documentElement.style.setProperty('--sar', 'env(safe-area-inset-right)')
     document.documentElement.style.setProperty('--sab', 'env(safe-area-inset-bottom)')
@@ -94,61 +126,54 @@ const setSafeArea = (safeArea?: Area) => {
     const rn = right ? parseInt(right.substring(0, right.length - 2)) : 0;
     const bn = bottom ? parseInt(bottom.substring(0, bottom.length - 2)) : 0;
     const ln = left ? parseInt(left.substring(0, left.length - 2)) : 0;
-    config.safeArea = {
-        bottom: innerHeight - bn,
-        height: innerHeight - bn - tn,
+    safeArea = {
+        bottom: window.innerHeight - bn,
+        height: window.innerHeight - bn - tn,
         left: ln,
-        right: innerWidth - rn,
+        right: window.innerWidth - rn,
         top: tn,
-        width: innerWidth - rn - ln,
-        ...safeArea
+        width: window.innerWidth - rn - ln,
+        ...sa
     }
-    setUnit(config.safeArea);
+    updateUnit();
 }
 
-interface ConfigOption {
-    name?: string;
-    platform?: Platform;
-    version?: string;
-    resource?: string;
-    unit?: number;
-    adapter?: IAdapter;
-    safeArea?: Area;
-    baseURL?: string;
+function updateScale(value: number) {
+    const scale = value;
+    innerWidth = window.innerWidth;
+    innerHeight = window.innerHeight;
+    if (direction === 'horizontal') {
+        if (innerHeight > innerWidth / scale) {
+            innerHeight = innerWidth / scale;
+        }
+    } else {
+        if (innerWidth > innerHeight * scale) {
+            innerWidth = innerHeight * scale;
+        }
+    }
+    safeArea = {
+        width: innerWidth,
+        height: innerHeight,
+        top: (window.innerHeight - innerHeight) / 2,
+        bottom: innerHeight,
+        left: (window.innerWidth - innerWidth) / 2,
+        right: innerWidth,
+    }
+    updateUnit();
 }
 
-export const install = (e: ConfigOption) => {
+export const install = (e: Partial<Config>) => {
     Object.keys(e).forEach(key => {
         // @ts-ignore
         config[key] = e[key];
         switch (key) {
-            case 'unit':
-                setUnit(config.safeArea);
-                break;
             case 'safeArea':
-                setSafeArea(e[key]);
+                updateSafeArea(e[key]);
                 break;
             case 'scale':
                 // @ts-ignore
-                const scale = e[key] as number;
-                innerWidth = window.innerWidth;
-                innerHeight = window.innerHeight;
-                if (config.direction === 'horizontal') {
-                    if (innerHeight > innerWidth) {
-                        innerHeight = innerWidth / scale;
-                    }
-                } else {
-                    if (innerWidth > innerHeight) {
-                        innerWidth = innerHeight * scale;
-                    }
-                }
-                config.innerHeight = innerHeight;
-                config.innerWidth = innerWidth;
-                config.innerX = (window.innerWidth - innerWidth) / 2;
-                config.innerY = (window.innerHeight - innerHeight) / 2;
-        }
-        if (key === 'safeArea') {
-            setSafeArea(e[key]);
+                updateScale(e[key]);
+                break;
         }
     })
 }

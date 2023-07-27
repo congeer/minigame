@@ -6,19 +6,15 @@ import {Rect, RectOptions} from "./Rect";
 
 export type ModalOptions = {
     title?: string
-    border?: number
-    color?: number
-
-    height?: number
     canClose?: boolean
     onClose?: () => any
     onOpen?: () => any
-
     parent?: Container | Graphics
-}
+} & RectOptions
 
 export class Modal extends Rect {
-    static defaultBorder = 0xffffff
+    static defaultBorderColor = 0xffffff
+    static defaultBorderWidth = unit(4)
     static defaultColor = 0x000000
     static defaultAlpha = 1
 
@@ -52,9 +48,10 @@ export class Modal extends Rect {
             width: width,
             height: height,
             backAlpha: Modal.defaultAlpha,
-            borderColor: this.modalOptions?.border ?? Modal.defaultBorder,
-            backColor: this.modalOptions?.color ?? Modal.defaultColor,
-            borderWidth: unit(8)
+            borderColor: Modal.defaultBorderColor,
+            backColor: Modal.defaultColor,
+            borderWidth: Modal.defaultBorderWidth,
+            ...this.modalOptions
         })
         content.eventMode = 'static';
         content.on('pointerdown', (e) => {

@@ -30,7 +30,6 @@ if (isWechat()) {
     wx.onShareTimeline && wx.onShareTimeline(callBack);
     const systemInfo = wx.getSystemInfoSync();
     config.safeArea = systemInfo.safeArea;
-    config.unit = config.safeArea.width > config.safeArea.height ? config.safeArea.height / 1000 : config.safeArea.width / 1000;
 }
 
 export {

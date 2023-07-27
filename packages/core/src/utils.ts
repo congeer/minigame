@@ -65,7 +65,7 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
 
     const p = parent ? parent.getBounds(false) : {...config.safeArea, x: 0, y: 0, height: config.safeArea.height};
 
-    const parentX = parent ? p.x : (config.safeArea.left + (innerWidth - config.innerWidth)/2);
+    const parentX = parent ? p.x : config.safeArea.left;
     if (opts?.left !== undefined) {
         delta.x = opts.left - rect.left + parentX
     } else if (opts?.right !== undefined) {
@@ -74,7 +74,7 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
         delta.x = (p.width - rect.left - rect.right) / 2 + parentX + opts.center
     }
 
-    const parentY = parent ? p.y : (config.safeArea.top + (innerHeight - config.innerHeight)/2);
+    const parentY = parent ? p.y : config.safeArea.top;
     if (opts?.top !== undefined) {
         delta.y = opts.top - rect.top + parentY;
     } else if (opts?.bottom !== undefined) {
