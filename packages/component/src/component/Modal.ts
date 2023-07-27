@@ -1,6 +1,7 @@
 import {app, config, unit} from "@minigame/core";
-import {Container as PIXIContainer, DisplayObject} from "pixi.js";
+import {DisplayObject} from "pixi.js";
 import {Container} from "./Container";
+import {Graphics} from "./Graphics";
 import {Rect, RectOptions} from "./Rect";
 
 export type ModalOptions = {
@@ -13,7 +14,7 @@ export type ModalOptions = {
     onClose?: () => any
     onOpen?: () => any
 
-    parent?: PIXIContainer
+    parent?: Container | Graphics
 }
 
 export class Modal extends Rect {
@@ -26,7 +27,7 @@ export class Modal extends Rect {
     onClose?: () => any
     onOpen?: () => any
     private isOpen: boolean = false
-    private parentContainer: PIXIContainer
+    private parentContainer: Container | Graphics
     private contentMask: Rect
 
     constructor(opts?: ModalOptions) {
@@ -36,12 +37,12 @@ export class Modal extends Rect {
             backColor: 0x000000,
             backAlpha: 0.5
         })
+        this.x = config.innerX;
+        this.y = config.innerY;
         this.visible = false;
-        this.x = (innerWidth - config.innerWidth) / 2;
-        this.y = (innerHeight - config.innerHeight) / 2;
         this.onClose = opts?.onClose;
         this.onOpen = opts?.onOpen;
-        this.parentContainer = opts?.parent ?? app.stage;
+        this.parentContainer = opts?.parent ?? this;
         this.modalOptions = opts;
         const scale = 0.8;
         const height = this.modalOptions?.height ?? config.innerHeight * scale * 0.8;
@@ -72,7 +73,7 @@ export class Modal extends Rect {
         content.addChild(contentMask);
         content.mask = contentMask;
 
-        this.append(content, {})
+        this.append(content, this.parentContainer, {})
 
         this.eventMode = 'static';
 
@@ -110,7 +111,7 @@ export class Modal extends Rect {
             return;
         }
         this.visible = true;
-        this.parentContainer.addChild(this);
+        app.stage.addChild(this);
         this.onOpen && this.onOpen()
         this.isOpen = true;
     }
@@ -120,7 +121,7 @@ export class Modal extends Rect {
             return;
         }
         this.visible = false;
-        this.parentContainer.removeChild(this)
+        app.stage.removeChild(this)
         this.onClose && this.onClose()
         this.isOpen = false;
     }

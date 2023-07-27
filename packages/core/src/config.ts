@@ -26,6 +26,8 @@ interface Config {
     fonts: { [key: string]: string };
     unit: number;
     adapter: IAdapter;
+    innerX: number;
+    innerY: number;
     innerWidth: number;
     innerHeight: number;
     safeArea: Area;
@@ -54,6 +56,8 @@ export const config: Config = {
     adapter: new WebAdapter(""),
     innerWidth,
     innerHeight,
+    innerX: (window.innerWidth - innerWidth) / 2,
+    innerY: (window.innerHeight - innerHeight) / 2,
     safeArea: {
         width: innerWidth,
         height: innerHeight,
