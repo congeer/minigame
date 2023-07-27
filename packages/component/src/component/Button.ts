@@ -6,8 +6,7 @@ import {Rect, RectOptions} from "./Rect";
 export type ButtonOptions = {
     id?: string
     text?: string
-    fontColor?: number
-    fontStyle?: Partial<TextStyle>
+    textStyle?: Partial<TextStyle>
     padding?: number
     onClick?: (event: FederatedPointerEvent) => void
 } & RectOptions
@@ -19,6 +18,10 @@ export class Button extends Rect<ButtonOptions> {
     static defaultBorderColor = 0xffffff
     static defaultBorderWidth = 0
     static defaultPadding = unit(25)
+    static defaultTextStyle = {
+        fill: 0xffffff,
+        fontSize: unit(50)
+    }
 
     constructor(opts?: ButtonOptions) {
         super({
@@ -26,22 +29,17 @@ export class Button extends Rect<ButtonOptions> {
             borderWidth: Button.defaultBorderWidth,
             backColor: Button.defaultBackColor,
             backAlpha: Button.defaultBackAlpha,
-            text: opts?.text,
             padding: Button.defaultPadding,
-            ...opts
+            ...opts,
+            textStyle: {
+                ...Button.defaultTextStyle,
+                ...opts?.textStyle
+            },
         })
-        if (!this.opts.text) {
-            this.opts.text = "Button";
-        }
-        this.opts.fontStyle = this.opts.fontStyle ?? {
-            fill: this.opts.fontColor ?? 0xffffff, fontSize: unit(60),
-        };
-        this.view();
-        this.redraw();
     }
 
-    protected view() {
-        const text = new Text(this.opts.text, this.opts.fontStyle);
+    protected drawer() {
+        const text = new Text(this.opts.text, this.opts.textStyle);
         this.opts = {
             ...this.opts,
             width: this.opts.width ?? text.width + this.opts.padding!,
@@ -55,8 +53,9 @@ export class Button extends Rect<ButtonOptions> {
     }
 
     redraw(opts?: ButtonOptions) {
+        this.removeChildren();
+        this.removeAllListeners();
         super.redraw(opts);
-        this.view();
     }
 
     set text(text: string) {
@@ -64,7 +63,7 @@ export class Button extends Rect<ButtonOptions> {
     }
 
     set fontStyle(fontStyle: TextStyle) {
-        this.redraw({fontStyle: {...this.opts.fontStyle, ...fontStyle}})
+        this.redraw({textStyle: {...this.opts.textStyle, ...fontStyle}})
     }
 
     set onClick(callback: (event: FederatedPointerEvent) => void) {

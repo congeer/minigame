@@ -3,11 +3,8 @@ import {Container} from "./Container";
 
 export type RichTextOption = {
     text?: string;
-
     style?: any;
-
     styles?: any;
-
     maxWidth?: number;
 }
 

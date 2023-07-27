@@ -5,26 +5,29 @@ import {minAlpha} from "./Constant";
 import {Container} from "./Container";
 import {Rect, RectOptions} from "./Rect";
 
-export type ScrollContainerOptions = RectOptions & {
-    direction?: 'vertical' | 'horizontal' | 'both'
-}
+export type Direction = 'vertical' | 'horizontal' | 'both';
 
-const defaultScrollOptions: ScrollContainerOptions = {
-    width: 0,
-    height: 0,
-    direction: 'both',
-    backAlpha: minAlpha,
-    backColor: 0x000000
-}
+export type ScrollContainerOptions = {
+    direction?: Direction
+} & RectOptions
 
 export class ScrollContainer extends Rect<ScrollContainerOptions> {
+
+    static defaultDirection: Direction = 'both'
+    static defaultColor = 0x000000
+    static defaultAlpha = minAlpha
 
     content: Container;
     scroller: Scroller;
     moving: boolean = false;
 
     constructor(opts?: ScrollContainerOptions) {
-        super({...defaultScrollOptions, ...opts});
+        super({
+            direction: ScrollContainer.defaultDirection,
+            backColor: ScrollContainer.defaultColor,
+            backAlpha: ScrollContainer.defaultAlpha,
+            ...opts
+        });
         const content = this.content = new Container();
         const mask = new Rect({
             width: this.opts?.width,
@@ -34,18 +37,20 @@ export class ScrollContainer extends Rect<ScrollContainerOptions> {
         } as RectOptions);
         content.mask = mask;
         this.addChild(content, mask)
-
         const scroller = this.scroller = new Scroller((x, y) => {
-            if (this.opts?.direction === 'vertical') {
-                content.y = y;
-            } else if (this.opts?.direction === 'horizontal') {
-                content.x = x;
-            } else {
-                content.x = x;
-                content.y = y;
+            switch (this.opts?.direction) {
+                case 'vertical':
+                    content.y = y;
+                    break;
+                case 'horizontal':
+                    content.x = x;
+                    break;
+                default:
+                    content.x = x;
+                    content.y = y;
+                    break;
             }
         })
-        scroller.contentSize(mask.width, mask.height, content.width, content.height);
 
         const onDragMove = (event: FederatedPointerEvent) => {
             scroller.doTouchMove(event.global.x, event.global.y, event.originalEvent.timeStamp);
@@ -70,13 +75,33 @@ export class ScrollContainer extends Rect<ScrollContainerOptions> {
         this['onwheel'] = (event) => {
             this.scroller.wheel(event.deltaX, event.deltaY);
         };
-
     }
 
     append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
         const displayObject = this.content.append(child, parent, alignOpt);
         this.scroller.contentSize(this.width, this.height, this.content.width, this.content.height);
         return displayObject;
+    }
+
+    removeChildren(beginIndex?: number, endIndex?: number): DisplayObject[] {
+        const children = this.content.removeChildren(beginIndex, endIndex);
+        this.scroller.contentSize(this.width, this.height, this.content.width, this.content.height);
+        return children;
+    }
+
+    removeChild(...child: DisplayObject[]): DisplayObject {
+        const one = this.content.removeChild(...child);
+        this.scroller.contentSize(this.width, this.height, this.content.width, this.content.height);
+        return one;
+    }
+
+    align() {
+        super.align();
+        this.scroller.contentSize(this.width, this.height, this.content.width, this.content.height);
+    }
+
+    set direction(direction: Direction) {
+        this.opts.direction = direction;
     }
 
 }

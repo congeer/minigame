@@ -1,4 +1,3 @@
-import {ObservablePoint} from "pixi.js";
 import {Graphics} from "./Graphics"
 
 
@@ -29,10 +28,6 @@ export abstract class Shape<T extends ShapeOptions> extends Graphics {
         this.draw();
     }
 
-    anchor = new ObservablePoint(() => {
-        this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
-    }, this, 0, 0);
-
     draw() {
         this.drawer();
         this.zIndex = this.opts.zIndex ?? -1;
@@ -43,8 +38,6 @@ export abstract class Shape<T extends ShapeOptions> extends Graphics {
 
     redraw(opts?: T) {
         this.opts = {...this.opts, ...opts}
-        this.removeChildren();
-        this.removeAllListeners();
         this.clear();
         this.draw();
     }

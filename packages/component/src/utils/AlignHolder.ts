@@ -29,8 +29,8 @@ export class AlignHolder {
         return ret;
     }
 
-    remove(child: DisplayObject) {
-        this.childAlignCache = this.childAlignCache.filter(({child: c}) => c !== child);
+    remove(...child: DisplayObject[]) {
+        this.childAlignCache = this.childAlignCache.filter(({child: c}) => !child.includes(c));
     }
 
     align() {

@@ -10,10 +10,6 @@ export type RectOptions = {
 
 export class Rect<T extends RectOptions = RectOptions> extends Shape<T> {
 
-    anchor = new ObservablePoint(() => {
-        this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
-    }, this, 0, 0);
-
     protected drawer() {
         if (!this.opts.width || !this.opts.height) {
             return;
