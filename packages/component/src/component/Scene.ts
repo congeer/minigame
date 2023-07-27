@@ -1,5 +1,5 @@
-import {align, Align, app, config} from "@minigame/core";
-import {DisplayObject} from "pixi.js";
+import {Align, app, config} from "@minigame/core";
+import {Container as PIXIContainer, DisplayObject} from "pixi.js";
 import {Container} from "./Container";
 import {Rect} from "./Rect";
 
@@ -23,14 +23,12 @@ export abstract class Scene extends Rect {
 
     protected constructor(opts?: BackGroundProps) {
         super({
-            width: config.safeArea.width,
-            height: config.safeArea.height,
+            width: config.innerWidth,
+            height: config.innerHeight,
             backColor: opts?.color ?? Scene.defaultColor,
         });
-        align(this, {
-            top: 0,
-            left: innerWidth / 2 - this.width / 2,
-        })
+        this.x = (innerWidth - config.innerWidth) / 2;
+        this.y = (innerHeight - config.innerHeight) / 2;
         app.stage.addChild(this);
     }
 
@@ -42,6 +40,14 @@ export abstract class Scene extends Rect {
         super.destroy();
         this.hide();
         app.stage.removeChild(this);
+    }
+
+    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
+        if (parent && !(parent instanceof PIXIContainer)) {
+            alignOpt = parent;
+            parent = undefined;
+        }
+        return this.alignHolder.append(child, parent, alignOpt);
     }
 
     protected abstract view(...args: any[]): (() => void) | void

@@ -83,7 +83,6 @@ export function align<T extends Container>(target: DisplayObject, parent?: T | A
         delta.y = (p.height - rect.top - rect.bottom) / 2 + parentY + opts.middle
     }
 
-
     target.x += delta.x / (parent?.scale?.x ?? 1)
     target.y += delta.y / (parent?.scale?.y ?? 1)
 }

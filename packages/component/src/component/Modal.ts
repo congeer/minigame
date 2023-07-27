@@ -1,4 +1,4 @@
-import {align, app, unit} from "@minigame/core";
+import {app, config, unit} from "@minigame/core";
 import {Container as PIXIContainer, DisplayObject} from "pixi.js";
 import {Container} from "./Container";
 import {Rect, RectOptions} from "./Rect";
@@ -17,55 +17,49 @@ export type ModalOptions = {
 }
 
 export class Modal extends Rect {
-
     static defaultBorder = 0xffffff
-
     static defaultColor = 0x000000
-
     static defaultAlpha = 1
 
+    modalOptions?: ModalOptions
     content: Container
-
     onClose?: () => any
-
     onOpen?: () => any
-
     private isOpen: boolean = false
-
     private parentContainer: PIXIContainer
-
     private contentMask: Rect
 
     constructor(opts?: ModalOptions) {
         super({
-            width: app.screen.width,
-            height: app.screen.height,
+            width: config.innerWidth,
+            height: config.innerHeight,
             backColor: 0x000000,
             backAlpha: 0.5
         })
+        this.visible = false;
+        this.x = (innerWidth - config.innerWidth) / 2;
+        this.y = (innerHeight - config.innerHeight) / 2;
         this.onClose = opts?.onClose;
         this.onOpen = opts?.onOpen;
         this.parentContainer = opts?.parent ?? app.stage;
-
+        this.modalOptions = opts;
         const scale = 0.8;
+        const height = this.modalOptions?.height ?? config.innerHeight * scale * 0.8;
+        const width = config.innerWidth * scale;
 
-        const content = new Container();
-        content.eventMode = 'none';
-        const height = opts?.height ?? app.screen.height * scale * 0.8;
-        this.content = content;
-
-        const width = app.screen.width * scale;
-        const back = new Rect({
+        const content = new Rect({
             width: width,
             height: height,
             backAlpha: Modal.defaultAlpha,
-            borderColor: opts?.border ?? Modal.defaultBorder,
-            backColor: opts?.color ?? Modal.defaultColor,
+            borderColor: this.modalOptions?.border ?? Modal.defaultBorder,
+            backColor: this.modalOptions?.color ?? Modal.defaultColor,
             borderWidth: unit(8)
         })
-        content.addChild(back)
-        content.width = width
-        content.height = height
+        content.eventMode = 'static';
+        content.on('pointerdown', (e) => {
+            e.stopPropagation();
+        })
+        this.content = content;
 
         this.zIndex = 999
 
@@ -78,24 +72,19 @@ export class Modal extends Rect {
         content.addChild(contentMask);
         content.mask = contentMask;
 
-        super.addChild(content)
-        align(content);
+        this.append(content, {})
 
-        this.interactive = true;
+        this.eventMode = 'static';
 
         this.on('pointerdown', () => {
-            if (opts?.canClose) {
+            if (this.modalOptions?.canClose) {
                 this.close();
             }
         })
     }
 
-    addChild(...children: DisplayObject[]) {
-        return this.content.addChild(...children);
-    }
-
-    addExtra(...children: DisplayObject[]) {
-        return super.addChild(...children);
+    appendContent(child: DisplayObject) {
+        return this.content.append(child);
     }
 
     get contentWidth(): number {

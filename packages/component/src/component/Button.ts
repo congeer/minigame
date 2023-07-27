@@ -8,6 +8,7 @@ export type ButtonOptions = {
     text?: string
     fontColor?: number
     fontStyle?: Partial<TextStyle>
+    padding?: number
     onClick?: (event: FederatedPointerEvent) => void
 } & RectOptions
 
@@ -17,6 +18,7 @@ export class Button extends Rect<ButtonOptions> {
     static defaultBackAlpha = 0
     static defaultBorderColor = 0xffffff
     static defaultBorderWidth = 0
+    static defaultPadding = unit(25)
 
     constructor(opts?: ButtonOptions) {
         super({
@@ -25,6 +27,7 @@ export class Button extends Rect<ButtonOptions> {
             backColor: Button.defaultBackColor,
             backAlpha: Button.defaultBackAlpha,
             text: opts?.text,
+            padding: Button.defaultPadding,
             ...opts
         })
         if (!this.opts.text) {
@@ -41,8 +44,8 @@ export class Button extends Rect<ButtonOptions> {
         const text = new Text(this.opts.text, this.opts.fontStyle);
         this.opts = {
             ...this.opts,
-            width: this.opts.width ?? text.width + unit(25),
-            height: this.opts.height ?? text.height + unit(25)
+            width: this.opts.width ?? text.width + this.opts.padding!,
+            height: this.opts.height ?? text.height + this.opts.padding!
         }
         this.eventMode = 'static';
         if (this.opts.onClick) {

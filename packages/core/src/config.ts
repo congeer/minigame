@@ -26,6 +26,8 @@ interface Config {
     fonts: { [key: string]: string };
     unit: number;
     adapter: IAdapter;
+    innerWidth: number;
+    innerHeight: number;
     safeArea: Area;
     baseURL: string;
 }
@@ -50,6 +52,8 @@ export const config: Config = {
     fonts: {},
     unit: innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000,
     adapter: new WebAdapter(""),
+    innerWidth,
+    innerHeight,
     safeArea: {
         width: innerWidth,
         height: innerHeight,
@@ -134,6 +138,8 @@ export const install = (e: ConfigOption) => {
                         innerWidth = innerHeight * scale;
                     }
                 }
+                config.innerHeight = innerHeight;
+                config.innerWidth = innerWidth;
         }
         if (key === 'safeArea') {
             setSafeArea(e[key]);

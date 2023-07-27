@@ -1,72 +1,82 @@
-import {FederatedPointerEvent} from "pixi.js";
+import {Align} from "@minigame/core";
+import {DisplayObject, FederatedPointerEvent} from "pixi.js";
+import {Scroller} from "../utils/Scroller";
+import {minAlpha} from "./Constant";
 import {Container} from "./Container";
 import {Rect, RectOptions} from "./Rect";
 
-export class ScrollContainer extends Rect {
+export type ScrollContainerOptions = RectOptions & {
+    direction?: 'vertical' | 'horizontal' | 'both'
+}
 
-    content?: Container;
+const defaultScrollOptions: ScrollContainerOptions = {
+    width: 0,
+    height: 0,
+    direction: 'both',
+    backAlpha: minAlpha,
+    backColor: 0x000000
+}
 
-    protected drawer() {
-        super.drawer();
+export class ScrollContainer extends Rect<ScrollContainerOptions> {
 
-        const content = new Container();
-        this.content = content;
-        super.addChild(content);
+    content: Container;
+    scroller: Scroller;
+    moving: boolean = false;
 
+    constructor(opts?: ScrollContainerOptions) {
+        super({...defaultScrollOptions, ...opts});
+        const content = this.content = new Container();
         const mask = new Rect({
             width: this.opts?.width,
             height: this.opts?.height,
             backColor: 0, backAlpha: 1,
             zIndex: -1
         } as RectOptions);
-        super.append(mask)
         content.mask = mask;
+        this.addChild(content, mask)
 
-        let isMoving = false;
-        const onDragMove = (event: FederatedPointerEvent) => {
-            if (startScroll !== null) {
-                isMoving = true;
-                const y = startScroll + event.data.global.y;
-                this.onDragMoving(y, content, mask);
+        const scroller = this.scroller = new Scroller((x, y) => {
+            if (this.opts?.direction === 'vertical') {
+                content.y = y;
+            } else if (this.opts?.direction === 'horizontal') {
+                content.x = x;
+            } else {
+                content.x = x;
+                content.y = y;
             }
+        })
+        scroller.contentSize(mask.width, mask.height, content.width, content.height);
+
+        const onDragMove = (event: FederatedPointerEvent) => {
+            scroller.doTouchMove(event.global.x, event.global.y, event.originalEvent.timeStamp);
         }
 
         content.eventMode = 'static';
-        let startScroll: any = null;
         const onDragStart = (event: FederatedPointerEvent) => {
-            if (content.height < mask.height) {
-                return;
-            }
-            startScroll = content.y - event.data.global.y;
+            scroller.doTouchStart(event.global.x, event.global.y);
             this.on('pointermove', onDragMove);
+            this.moving = true;
         }
-        const onDragEnd = () => {
-            if (startScroll !== null) {
-                isMoving = false;
-                this.off('pointermove', onDragMove);
-                startScroll = null;
-            }
+        const onDragEnd = (event: FederatedPointerEvent) => {
+            scroller.doTouchEnd(event.originalEvent.timeStamp);
+            this.off('pointermove', onDragMove);
+            this.moving = false;
         }
         this.eventMode = 'static';
         this.hitArea = mask.getBounds();
+        this.on('pointerdown', onDragStart)
         this.on('pointerup', onDragEnd);
         this.on('pointerupoutside', onDragEnd);
         this['onwheel'] = (event) => {
-            const y = content.y - event.deltaY;
-            this.onDragMoving(y, content, mask);
+            this.scroller.wheel(event.deltaX, event.deltaY);
         };
 
-        content.on('pointerdown', onDragStart)
     }
 
-    private onDragMoving(y: number, content: Container, mask: Rect) {
-        if (y + content.height > mask.height + mask.y && y < mask.y) {
-            content.y = y;
-        } else if (y + content.height < mask.height + mask.y) {
-            content.y = mask.height + mask.y - content.height;
-        } else if (y > mask.y) {
-            content.y = mask.y;
-        }
+    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
+        const displayObject = this.content.append(child, parent, alignOpt);
+        this.scroller.contentSize(this.width, this.height, this.content.width, this.content.height);
+        return displayObject;
     }
 
 }
