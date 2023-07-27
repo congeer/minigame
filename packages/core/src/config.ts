@@ -144,6 +144,8 @@ export const install = (e: ConfigOption) => {
                 }
                 config.innerHeight = innerHeight;
                 config.innerWidth = innerWidth;
+                config.innerX = (window.innerWidth - innerWidth) / 2;
+                config.innerY = (window.innerHeight - innerHeight) / 2;
         }
         if (key === 'safeArea') {
             setSafeArea(e[key]);
