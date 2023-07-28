@@ -1,5 +1,4 @@
-import {DisplayObject} from "@pixi/display";
-import {Sprite} from "pixi.js";
+import {DisplayObject, Sprite} from "pixi.js";
 import {config} from "./config";
 
 export const createPromise = <T>(): [Promise<T | undefined>, (v?: T | PromiseLike<T>) => void, (v?: Error) => void] => {

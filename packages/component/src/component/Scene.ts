@@ -1,5 +1,5 @@
 import {Align, app, config} from "@minigame/core";
-import {Container as PIXIContainer, DisplayObject} from "pixi.js";
+import {DisplayObject} from "pixi.js";
 import {Container} from "./Container";
 import {Rect} from "./Rect";
 
@@ -42,8 +42,8 @@ export abstract class Scene extends Rect {
         app.stage.removeChild(this);
     }
 
-    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
-        if (parent && !(parent instanceof PIXIContainer)) {
+    append(child: DisplayObject, parent?: DisplayObject | Align, alignOpt?: Align): DisplayObject {
+        if (parent && !(parent instanceof DisplayObject)) {
             alignOpt = parent;
             parent = undefined;
         }

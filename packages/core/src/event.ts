@@ -1,5 +1,4 @@
-import {DisplayObject} from "@pixi/display";
-import {Container, utils} from "pixi.js";
+import {Container, DisplayObject, utils} from "pixi.js";
 import {app} from "./core";
 
 export const eventBus = new utils.EventEmitter()

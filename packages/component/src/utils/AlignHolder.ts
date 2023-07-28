@@ -1,5 +1,5 @@
 import {align, Align} from "@minigame/core";
-import {Container as PIXIContainer, DisplayObject} from "pixi.js";
+import {Container , DisplayObject} from "pixi.js";
 
 export type ChildCache = {
     child: DisplayObject,
@@ -9,9 +9,9 @@ export type ChildCache = {
 
 export class AlignHolder {
 
-    base: PIXIContainer;
+    base: Container;
 
-    constructor(base: PIXIContainer) {
+    constructor(base: Container) {
         this.base = base;
     }
 

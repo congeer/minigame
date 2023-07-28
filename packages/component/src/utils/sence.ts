@@ -4,11 +4,11 @@ const sceneMap: { [key: string]: new () => Scene } = {}
 
 const stack: { cursor: Scene, args: any[] }[] = []
 
-export const registerScene = (name: string, scene: new () => Scene) => {
+export const registerScene = (name: string, scene: new <T extends Scene>() => T) => {
     sceneMap[name] = scene
 }
 
-export const registerScenes = (scenes: { [key: string]: new () => Scene }) => {
+export const registerScenes = (scenes: { [key: string]: new <T extends Scene>() => T }) => {
     Object.assign(sceneMap, scenes)
 }
 

@@ -5,6 +5,9 @@ import json from "@rollup/plugin-json";
 import pkg from './package.json' assert {type: 'json'};
 import path from "path";
 
+const dependencies = pkg.dependencies ? Object.keys(pkg.dependencies) : [];
+const peerDependencies = pkg.peerDependencies ? Object.keys(pkg.peerDependencies) : [];
+const external = [...dependencies, ...peerDependencies];
 export default {
     input: 'src/index.ts',
     output: [
@@ -37,5 +40,5 @@ export default {
         common(),
         resolve()
     ],
-    external: pkg.dependencies ? Object.keys(pkg.dependencies) : []
+    external: external
 }
