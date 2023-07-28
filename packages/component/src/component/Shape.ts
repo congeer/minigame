@@ -30,7 +30,9 @@ export abstract class Shape<T extends ShapeOptions> extends Graphics {
 
     draw() {
         this.drawer();
-        this.zIndex = this.opts.zIndex ?? -1;
+        if (this.opts.zIndex) {
+            this.zIndex = this.opts.zIndex;
+        }
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }
 
