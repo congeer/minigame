@@ -1,4 +1,4 @@
-import {app, config, unit} from "@minigame/core";
+import {Align, app, config, unit} from "@minigame/core";
 import {DisplayObject} from "pixi.js";
 import {Container} from "./Container";
 import {Graphics} from "./Graphics";
@@ -81,8 +81,8 @@ export class Modal extends Rect {
         })
     }
 
-    appendContent(child: DisplayObject) {
-        return this.content.append(child);
+    appendContent(child: DisplayObject, parent?: Container | Graphics, align?: Align) {
+        return this.content.append(child, parent, align);
     }
 
     get contentWidth(): number {
