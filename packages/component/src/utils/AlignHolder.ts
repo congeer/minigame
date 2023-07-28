@@ -3,7 +3,7 @@ import {Container as PIXIContainer, DisplayObject} from "pixi.js";
 
 export type ChildCache = {
     child: DisplayObject,
-    parent?: PIXIContainer | undefined,
+    parent?: DisplayObject | undefined,
     align?: Align
 }
 
@@ -17,10 +17,10 @@ export class AlignHolder {
 
     childAlignCache: ChildCache[] = [];
 
-    append(child: DisplayObject, parent?: PIXIContainer | Align, alignOpt?: Align): DisplayObject {
+    append(child: DisplayObject, parent?: DisplayObject | Align, alignOpt?: Align): DisplayObject {
         const ret = this.base.addChild(child);
         if (!parent && !alignOpt) return ret;
-        if (parent && !(parent instanceof PIXIContainer)) {
+        if (parent && !(parent instanceof DisplayObject)) {
             alignOpt = parent;
             parent = this.base;
         }

@@ -1,8 +1,8 @@
 import {DisplayObject} from "@pixi/display";
-import {Container, Sprite} from "pixi.js";
+import {Sprite} from "pixi.js";
 import {config} from "./config";
 
-export const createPromise = function <T>(): [Promise<T | undefined>, (v?: T | PromiseLike<T>) => void, (v?: Error) => void] {
+export const createPromise = <T>(): [Promise<T | undefined>, (v?: T | PromiseLike<T>) => void, (v?: Error) => void] => {
     let resolve: (v?: T | PromiseLike<T>) => void = () => {
     }
     let reject: (v?: Error) => void = () => {
@@ -22,7 +22,7 @@ export const delay = (t = 0) => {
     })
 }
 
-export function mixin<T extends new (...args: any[]) => unknown>(ctor: T, ...bases: any[]) {
+export const mixin = <T extends new (...args: any[]) => unknown>(ctor: T, ...bases: any[]) => {
     bases.forEach((baseCtor) => {
         Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
             Object.defineProperty(
@@ -54,8 +54,8 @@ export interface Align {
 
 const defaultAlign: Align = {center: 0, middle: 0}
 
-export function align<T extends Container>(target: DisplayObject, parent?: T | Align, opts?: Align) {
-    if (parent && !(parent instanceof Container)) {
+export const align = <T extends DisplayObject>(target: DisplayObject, parent?: T | Align, opts?: Align) => {
+    if (parent && !(parent instanceof DisplayObject)) {
         opts = parent
         parent = undefined
     }

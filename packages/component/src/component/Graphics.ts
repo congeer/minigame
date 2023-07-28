@@ -1,5 +1,5 @@
 import {Align} from "@minigame/core";
-import {Container, DisplayObject, Graphics as PIXIGraphics, ObservablePoint} from "pixi.js";
+import {DisplayObject, Graphics as PIXIGraphics, ObservablePoint} from "pixi.js";
 import {AlignHolder} from "../utils/AlignHolder";
 
 export class Graphics extends PIXIGraphics {
@@ -15,7 +15,7 @@ export class Graphics extends PIXIGraphics {
         this.pivot.set(this.anchor.x * this.width, this.anchor.y * this.height);
     }, this, 0, 0);
 
-    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
+    append(child: DisplayObject, parent?: DisplayObject | Align, alignOpt?: Align): DisplayObject {
         return this.alignHolder.append(child, parent, alignOpt);
     }
 

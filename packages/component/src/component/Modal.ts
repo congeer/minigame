@@ -1,7 +1,6 @@
 import {Align, app, config, unit} from "@minigame/core";
 import {DisplayObject} from "pixi.js";
 import {Container} from "./Container";
-import {Graphics} from "./Graphics";
 import {Rect, RectOptions} from "./Rect";
 
 export type ModalOptions = {
@@ -9,7 +8,7 @@ export type ModalOptions = {
     canClose?: boolean
     onClose?: () => any
     onOpen?: () => any
-    parent?: Container | Graphics
+    relative?: DisplayObject
 } & RectOptions
 
 export class Modal extends Rect {
@@ -23,7 +22,7 @@ export class Modal extends Rect {
     onClose?: () => any
     onOpen?: () => any
     private isOpen: boolean = false
-    private parentContainer: Container | Graphics
+    private readonly relative: DisplayObject
     private contentMask: Rect
 
     constructor(opts?: ModalOptions) {
@@ -38,7 +37,7 @@ export class Modal extends Rect {
         this.visible = false;
         this.onClose = opts?.onClose;
         this.onOpen = opts?.onOpen;
-        this.parentContainer = opts?.parent ?? this;
+        this.relative = opts?.relative ?? this;
         this.modalOptions = opts;
         const scale = 0.8;
         const height = this.modalOptions?.height ?? config.innerHeight * scale * 0.8;
@@ -70,7 +69,7 @@ export class Modal extends Rect {
         content.addChild(contentMask);
         content.mask = contentMask;
 
-        this.append(content, this.parentContainer, {})
+        this.append(content, this.relative, {})
 
         this.eventMode = 'static';
 
@@ -81,7 +80,7 @@ export class Modal extends Rect {
         })
     }
 
-    appendContent(child: DisplayObject, parent?: Container | Graphics, align?: Align) {
+    appendContent(child: DisplayObject, parent?: DisplayObject | Align, align?: Align) {
         return this.content.append(child, parent, align);
     }
 

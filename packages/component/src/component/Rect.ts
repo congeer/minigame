@@ -1,4 +1,3 @@
-import {ObservablePoint} from "pixi.js";
 import {Shape, ShapeOptions} from "./Shape";
 
 

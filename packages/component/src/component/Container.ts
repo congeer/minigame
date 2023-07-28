@@ -11,7 +11,7 @@ export class Container extends PIXIContainer {
         this.alignHolder = new AlignHolder(this);
     }
 
-    append(child: DisplayObject, parent?: Container | Align, alignOpt?: Align): DisplayObject {
+    append(child: DisplayObject, parent?: DisplayObject | Align, alignOpt?: Align): DisplayObject {
         return this.alignHolder.append(child, parent, alignOpt);
     }
 
