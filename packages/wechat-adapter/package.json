@@ -1,6 +1,6 @@
 {
   "name": "@minigame/wechat-adapter",
-  "version": "0.1.7",
+  "version": "0.1.11",
   "description": "A adapter for wechat mini game",
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
