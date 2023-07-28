@@ -3,6 +3,7 @@ import {app} from "@minigame/core";
 export class Scroller {
     tickerStop = true;
     callback: (x: number, y: number) => void;
+    onEnd?: () => void;
     range: { top: number; left: number; right: number; bottom: number } = {
         top: 0,
         left: 0,
@@ -14,8 +15,9 @@ export class Scroller {
     speedX = 0;
     speedY = 0;
 
-    constructor(callback: (x: number, y: number) => void) {
+    constructor(callback: (x: number, y: number) => void, onEnd?: () => void) {
         this.callback = callback;
+        this.onEnd = onEnd;
     }
 
     doTouchStart(x: number, y: number) {
@@ -88,11 +90,17 @@ export class Scroller {
         this.tickerStart(delta);
     }
 
+    timer?: any;
+
     wheel(deltaX: number, deltaY: number) {
+        this.timer && clearTimeout(this.timer);
         this.tickerStop = true;
         this.range.left += deltaX
         this.range.top += deltaY
         this.limitBoundary(this.callback);
+        this.timer = setTimeout(() => {
+            this.onEnd && this.onEnd();
+        }, 50)
     }
 
     contentSize(containerWidth: number, containerHeight: number, contentWidth: number, contentHeight: number) {
@@ -142,7 +150,8 @@ export class Scroller {
         this.tickerStop = false;
         const fn = () => {
             callback(performance.now());
-            this.tickerStop && app.ticker.remove(fn)
+            this.tickerStop && app.ticker.remove(fn);
+            this.tickerStop && this.onEnd && this.onEnd();
         };
         app.ticker.add(fn)
     }

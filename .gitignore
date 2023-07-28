@@ -2,5 +2,4 @@ node_modules
 .idea
 dist
 lib
-packages/template
 package-lock.json

@@ -36,7 +36,7 @@ interface Config {
     baseURL: string;
 }
 
-const defaultScale = 3 / 4;
+const defaultScale = 1;
 let direction: Direction = "vertical";
 
 let innerWidth = window.innerWidth;

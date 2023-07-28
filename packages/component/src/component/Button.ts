@@ -49,6 +49,7 @@ export class Button extends Rect<ButtonOptions> {
         if (this.opts.onClick) {
             this.on('pointerup', this.opts.onClick)
         }
+        super.drawer();
         this.append(text, {})
     }
 
