@@ -69,7 +69,7 @@ export class Modal extends Rect {
         content.addChild(contentMask);
         content.mask = contentMask;
 
-        this.append(content, this.relative, {})
+        super.append(content, this.relative, {})
 
         this.eventMode = 'static';
 
@@ -80,8 +80,12 @@ export class Modal extends Rect {
         })
     }
 
-    appendContent(child: DisplayObject, parent?: DisplayObject | Align, align?: Align) {
+    append(child: DisplayObject, parent?: DisplayObject | Align, align?: Align) {
         return this.content.append(child, parent, align);
+    }
+
+    extend(child: DisplayObject, parent?: DisplayObject | Align, align?: Align) {
+        return super.append(child, parent, align);
     }
 
     get contentWidth(): number {

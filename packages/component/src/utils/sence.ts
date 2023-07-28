@@ -1,6 +1,6 @@
 import {Scene} from "../component";
 
-const sceneMap: { [key: string]: new () => Scene } = {}
+const sceneMap: { [key: string]: new <T extends Scene>() => T } = {}
 
 const stack: { cursor: Scene, args: any[] }[] = []
 
