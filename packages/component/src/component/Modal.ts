@@ -1,4 +1,4 @@
-import {Align, app, config, unit} from "@minigame/core";
+import {Align, app, unite, config, value} from "@minigame/core";
 import {DisplayObject} from "pixi.js";
 import {Container} from "./Container";
 import {Rect, RectOptions} from "./Rect";
@@ -13,7 +13,7 @@ export type ModalOptions = {
 
 export class Modal extends Rect {
     static defaultBorderColor = 0xffffff
-    static defaultBorderWidth = unit(4)
+    static defaultBorderWidth: Function | number = unite(4)
     static defaultColor = 0x000000
     static defaultAlpha = 1
 
@@ -49,7 +49,7 @@ export class Modal extends Rect {
             backAlpha: Modal.defaultAlpha,
             borderColor: Modal.defaultBorderColor,
             backColor: Modal.defaultColor,
-            borderWidth: Modal.defaultBorderWidth,
+            borderWidth: value(Modal.defaultBorderWidth),
             ...this.modalOptions
         })
         content.eventMode = 'static';

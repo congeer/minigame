@@ -42,6 +42,20 @@ export const unit = (num: number, multiplier?: number) => {
     }
 }
 
+export const unite = (num: number) => {
+    return (multiplier?: number) => {
+        if (multiplier) {
+            return Math.floor(config.unit * num / multiplier) * multiplier
+        } else {
+            return config.unit * num
+        }
+    }
+}
+
+export const value = (v: any) => {
+    return v instanceof Function ? v() : v
+}
+
 export interface Align {
     top?: number
     left?: number

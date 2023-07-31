@@ -107,7 +107,7 @@ export const config: Config = {
 }
 
 const updateUnit = () => {
-    unit = config.safeArea.width > config.safeArea.height ? config.safeArea.height / 1000 : config.safeArea.width / 1000
+    unit = innerWidth > innerHeight ? innerHeight / 1000 : innerWidth / 1000
 }
 
 updateScale(defaultScale)

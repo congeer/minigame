@@ -1,4 +1,4 @@
-import {unit} from "@minigame/core";
+import {unite, value} from "@minigame/core";
 import {FederatedPointerEvent, Text, TextStyle} from "pixi.js";
 import {Rect, RectOptions} from "./Rect";
 
@@ -16,23 +16,22 @@ export class Button extends Rect<ButtonOptions> {
     static defaultBackColor = 0
     static defaultBackAlpha = 0
     static defaultBorderColor = 0xffffff
-    static defaultBorderWidth = 0
-    static defaultPadding = unit(25)
-    static defaultTextStyle = {
-        fill: 0xffffff,
-        fontSize: unit(50)
-    }
+    static defaultBorderWidth: Function | number = 0
+    static defaultPadding: Function | number = unite(25)
+    static defaultFontSize: Function | number = unite(50)
+    static defaultTextColor = 0xffffff
 
     constructor(opts?: ButtonOptions) {
         super({
             borderColor: Button.defaultBorderColor,
-            borderWidth: Button.defaultBorderWidth,
+            borderWidth: value(Button.defaultBorderWidth),
             backColor: Button.defaultBackColor,
             backAlpha: Button.defaultBackAlpha,
-            padding: Button.defaultPadding,
+            padding: value(Button.defaultPadding),
             ...opts,
             textStyle: {
-                ...Button.defaultTextStyle,
+                fontSize: value(Button.defaultFontSize),
+                fill: Button.defaultTextColor,
                 ...opts?.textStyle
             },
         })
