@@ -5,21 +5,44 @@
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
   "main": "bin/cli.js",
-  "type": "module",
   "files": [
-    "bin"
+    "bin",
+    "lib"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/congeer/minigame.git"
   },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc",
+    "dev": "tsc -w"
+  },
   "bin": {
     "minigame": "bin/cli.js"
   },
   "dependencies": {
-    "chalk": "^5.2.0",
-    "commander": "^10.0.0",
-    "inquirer": "^9.1.5",
-    "ora": "^6.3.0"
+    "@babel/core": "^7.21.4",
+    "@babel/plugin-transform-runtime": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "@babel/preset-typescript": "^7.21.4",
+    "@minigame/wechat-adapter": "^0.1.11",
+    "babel-loader": "^9.1.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "core-js": "^3.30.0",
+    "html-webpack-plugin": "^5.5.0",
+    "javascript-obfuscator": "^4.0.2",
+    "raw-loader": "^4.0.2",
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.2",
+    "webpackbar": "^5.0.2",
+    "@types/node": "^16.18.39",
+    "@types/inquirer": "^8.0.0",
+    "chalk": "^3.0.0",
+    "inquirer": "^8.0.0",
+    "minimist": "^1.2.8",
+    "ora": "^5.0.0"
   }
 }
