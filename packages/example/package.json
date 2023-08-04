@@ -12,7 +12,8 @@
     "build:context": "webpack --env prod --config webpack.context.js",
     "build:web": "webpack --env prod --env channel=web",
     "build:dev:web": "webpack --env dev --env channel=web",
-    "test": "minigame run",
+    "test": "minigame dev web",
+    "test2": "minigame dev wechat",
     "dev:web": "webpack serve --env dev channel=web"
   },
   "license": "MIT",

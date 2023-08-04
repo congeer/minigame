@@ -1,6 +1,7 @@
 import minimist from 'minimist';
+import {build} from "./build";
 import {create} from "./create";
-import {run} from "./webpack";
+import {dev} from "./dev";
 
 import {update} from "./update";
 
@@ -16,8 +17,11 @@ export default {
             case 'update':
                 update.action(args[0]);
                 break;
-            case 'run':
-                run.action({});
+            case 'dev':
+                dev.action(args[0]);
+                break;
+            case 'build':
+                build.action(args[0]);
                 break;
         }
     }
