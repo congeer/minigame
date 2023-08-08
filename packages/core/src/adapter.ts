@@ -18,7 +18,7 @@ export interface IAdapter {
 
     showAd(key?: string): Promise<void>
 
-    initAds(options: { key: string, options: AdOptions }[]): any
+    initAds(options: { [key: string]: AdOptions }): any
 
     initAd(option: AdOptions): any
 
@@ -47,7 +47,7 @@ export class Adapter implements IAdapter {
         return Promise.resolve();
     }
 
-    initAds(options: { key: string, options: AdOptions }[]): any {
+    initAds(options: { [key: string]: AdOptions }): any {
         // do nothing
     }
 

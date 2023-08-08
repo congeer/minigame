@@ -7,47 +7,48 @@ import {root, wx} from "./wx";
 
 class WechatAdapter extends Adapter {
 
-    adMap: { [key: string]: WechatMinigame.RewardedVideoAd } = {};
+    adConfigMap: { [key: string]: any } = {};
 
-    defaultAd: WechatMinigame.RewardedVideoAd | undefined;
+    defaultAdConfig: any | undefined;
 
     constructor(url: string) {
         super(url);
 
     }
 
-    initAds(options: { key: string, options: AdOptions }[]): any {
-        for (let i = 0; i < options.length; i++) {
-            const option = options[i];
-            const ad = this.initOneAd(option.options);
-            if (!ad) {
+    initAds(options: { [key: string]: AdOptions }): any {
+        for (let k in options) {
+            const option = options[k];
+            if (!option.wechat) {
                 continue;
             }
-            this.adMap[option.key] = ad;
-            if (option.key === 'default') {
-                this.defaultAd = ad;
+            this.adConfigMap[k] = option.wechat;
+            if (k === 'default') {
+                this.defaultAdConfig = option.wechat;
             }
         }
     }
 
     initAd(option: AdOptions): any {
-        this.defaultAd = this.initOneAd(option);
-    }
-
-    private initOneAd(option: AdOptions) {
         if (!option.wechat) {
             return;
         }
-        return wx.createRewardedVideoAd(option.wechat);
+        this.defaultAdConfig = option.wechat;
+    }
+
+    private initOneAd(option: any) {
+        return wx.createRewardedVideoAd(option);
     }
 
     showAd(key?: string): Promise<void> {
-        const ad = key ? this.adMap[key] : this.defaultAd;
+        const config = key ? this.adConfigMap[key] : this.defaultAdConfig;
+        const ad = this.initOneAd(config);
         return new Promise<void>((resolve, reject) => {
             if (ad) {
                 const onClose: WechatMinigame.RewardedVideoAdOnCloseCallback = (res) => {
                     ad.offClose(onClose);
                     ad.offError(onError);
+                    ad.destroy();
                     if (res.isEnded) {
                         resolve();
                     } else {
@@ -57,6 +58,7 @@ class WechatAdapter extends Adapter {
                 const onError: WechatMinigame.GridAdOnErrorCallback = (err) => {
                     ad.offClose(onClose);
                     ad.offError(onError);
+                    ad.destroy();
                     reject(err);
                 };
                 ad.onClose(onClose)

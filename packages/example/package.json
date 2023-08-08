@@ -6,15 +6,10 @@
   "main": "index.js",
   "appid": "",
   "scripts": {
-    "start": "webpack",
-    "build:wechat": "webpack --env prod --env channel=wechat",
-    "dev:wechat": "webpack --env dev --env channel=wechat",
-    "build:context": "webpack --env prod --config webpack.context.js",
-    "build:web": "webpack --env prod --env channel=web",
-    "build:dev:web": "webpack --env dev --env channel=web",
-    "test": "minigame dev web",
-    "test2": "minigame dev wechat",
-    "dev:web": "webpack serve --env dev channel=web"
+    "build:wechat": "minigame build wechat",
+    "dev:wechat": "minigame dev wechat",
+    "build:web": "minigame build web",
+    "dev:web": "minigame dev web"
   },
   "license": "MIT",
   "devDependencies": {

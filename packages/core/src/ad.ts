@@ -9,7 +9,7 @@ export interface AdOptions {
 }
 
 interface IAdManager {
-    options: { key: string, options: AdOptions }[] | AdOptions;
+    options: { [key: string]: AdOptions } | AdOptions;
 
     init(options: { [key: string]: AdOptions }): void;
 
@@ -22,10 +22,10 @@ export const AdManager: IAdManager = {
     options: {},
     init: (options) => {
         AdManager.options = options;
-        if (options instanceof Array) {
-            config.adapter.initAds(options)
-        } else {
+        if (options.wechat || options.android || options.ios || options.mobile || options.web) {
             config.adapter.initAd(options)
+        } else {
+            config.adapter.initAds(options as { [key: string]: AdOptions })
         }
     },
     show: (key?): Promise<void> => {
