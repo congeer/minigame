@@ -89,7 +89,7 @@ export const pack = ({channel, prod}: { channel: string, prod: boolean }) => {
         plugins.push(new CopyWebpackPlugin({
             patterns: [
                 {
-                    from: 'bin/game.json',
+                    from: 'wechat/game.json',
                     to: 'game.json',
                     transform: (content) => {
                         const json = JSON.parse(content.toString())
