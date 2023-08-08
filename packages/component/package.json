@@ -1,6 +1,6 @@
 {
   "name": "@minigame/component",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
   "main": "lib/index.js",
@@ -23,7 +23,7 @@
     "url": "https://github.com/congeer/minigame/issues"
   },
   "dependencies": {
-    "@minigame/core": "^0.1.21"
+    "@minigame/core": "^0.1.22"
   },
   "peerDependencies": {
     "pixi.js": "^7.2.4",
