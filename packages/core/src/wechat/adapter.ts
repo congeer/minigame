@@ -48,7 +48,6 @@ class WechatAdapter extends Adapter {
                 const onClose: WechatMinigame.RewardedVideoAdOnCloseCallback = (res) => {
                     ad.offClose(onClose);
                     ad.offError(onError);
-                    ad.destroy();
                     if (res.isEnded) {
                         resolve();
                     } else {
@@ -58,7 +57,6 @@ class WechatAdapter extends Adapter {
                 const onError: WechatMinigame.GridAdOnErrorCallback = (err) => {
                     ad.offClose(onClose);
                     ad.offError(onError);
-                    ad.destroy();
                     reject(err);
                 };
                 ad.onClose(onClose)
