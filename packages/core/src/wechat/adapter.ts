@@ -37,7 +37,7 @@ class WechatAdapter extends Adapter {
     }
 
     private initOneAd(option: any) {
-        return wx.createRewardedVideoAd(option);
+        return wx.createRewardedVideoAd({...option, multiton:true});
     }
 
     showAd(key?: string): Promise<void> {
