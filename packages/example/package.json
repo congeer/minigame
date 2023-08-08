@@ -1,7 +1,7 @@
 {
   "name": "@minigame/example",
   "private": true,
-  "version": "0.1.20",
+  "version": "0.1.21",
   "description": "",
   "main": "index.js",
   "appid": "",
@@ -17,7 +17,7 @@
     "minigame-api-typings": "^3.7.2"
   },
   "dependencies": {
-    "@minigame/component": "^0.1.20",
-    "@minigame/core": "^0.1.20"
+    "@minigame/component": "^0.1.21",
+    "@minigame/core": "^0.1.21"
   }
 }
