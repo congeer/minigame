@@ -6,8 +6,8 @@
   "main": "index.js",
   "appid": "",
   "scripts": {
-    "build:wechat": "minigame build wechat",
-    "dev:wechat": "minigame dev wechat",
+    "build": "minigame build",
+    "dev": "minigame dev",
     "build:web": "minigame build web",
     "dev:web": "minigame dev web"
   },

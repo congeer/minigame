@@ -16,7 +16,7 @@ export interface Area {
     right: number;
 }
 
-type Direction = "horizontal" | "vertical";
+type Direction = "horizontal" | "vertical" | "auto";
 
 interface Config {
     name: string;
