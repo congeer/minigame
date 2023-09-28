@@ -21,10 +21,11 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-typescript": "^11.1.0",
+    "esbuild": "^0.19.4",
     "lerna": "^7.1.4",
     "minigame-api-typings": "^3.7.3",
     "rimraf": "^5.0.0",
     "rollup": "^3.20.2",
-    "rollup-plugin-esbuild": "^5.0.0"
+    "rollup-plugin-esbuild": "^6.0.2"
   }
 }

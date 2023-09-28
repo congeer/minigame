@@ -63,6 +63,7 @@ export {
     HTMLCanvasElement,
     HTMLImageElement,
     Audio as HTMLAudioElement,
+    Audio,
     Audio as OfflineAudioContext,
     screenWidth as innerWidth,
     screenHeight as innerHeight,

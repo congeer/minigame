@@ -1,20 +1,23 @@
 import {Element} from "./element";
 
-let SN_SEED = 1
+Audio.HAVE_NOTHING = 0
+Audio.HAVE_METADATA = 1
+Audio.HAVE_CURRENT_DATA = 2
+Audio.HAVE_FUTURE_DATA = 3
+Audio.HAVE_ENOUGH_DATA = 4
 
-const _innerAudioContextMap = {}
+const _innerAudioContext = new WeakMap()
 
 export default class Audio extends Element {
+    readyState = Audio.HAVE_NOTHING
 
     constructor(url) {
         super()
 
-        this._$sn = SN_SEED++;
-
         this.readyState = Audio.HAVE_NOTHING
 
         const innerAudioContext = wx.createInnerAudioContext()
-        _innerAudioContextMap[this._$sn] = innerAudioContext
+        _innerAudioContext[this] = innerAudioContext
 
         this._canplayEvents = [
             'load',
@@ -26,29 +29,28 @@ export default class Audio extends Element {
 
         innerAudioContext.onCanplay(() => {
             this._loaded = true
-            this.readyState = Audio.HAVE_CURRENT_DATA
-
             this._canplayEvents.forEach((type) => {
                 this.dispatchEvent({type: type})
             })
+            this.readyState = Audio.HAVE_CURRENT_DATA
         })
         innerAudioContext.onPlay(() => {
-            this._paused = _innerAudioContextMap[this._$sn].paused
+            this._paused = _innerAudioContext[this].paused
             this.dispatchEvent({type: 'play'})
         })
         innerAudioContext.onPause(() => {
-            this._paused = _innerAudioContextMap[this._$sn].paused
+            this._paused = _innerAudioContext[this].paused
             this.dispatchEvent({type: 'pause'})
         })
         innerAudioContext.onEnded(() => {
-            this._paused = _innerAudioContextMap[this._$sn].paused
-            if (_innerAudioContextMap[this._$sn].loop === false) {
+            this._paused = _innerAudioContext[this].paused
+            if (_innerAudioContext[this].loop === false) {
                 this.dispatchEvent({type: 'ended'})
             }
             this.readyState = Audio.HAVE_ENOUGH_DATA
         })
         innerAudioContext.onError(() => {
-            this._paused = _innerAudioContextMap[this._$sn].paused
+            this._paused = _innerAudioContext[this].paused
             this.dispatchEvent({type: 'error'})
         })
 
@@ -81,19 +83,19 @@ export default class Audio extends Element {
     }
 
     play() {
-        _innerAudioContextMap[this._$sn].play()
+        _innerAudioContext[this].play()
     }
 
     resume() {
-        _innerAudioContextMap[this._$sn].resume()
+        _innerAudioContext[this].resume()
     }
 
     pause() {
-        _innerAudioContextMap[this._$sn].pause()
+        _innerAudioContext[this].pause()
     }
 
     destroy() {
-        _innerAudioContextMap[this._$sn].destroy()
+        _innerAudioContext[this].destroy()
     }
 
     canPlayType(mediaType = '') {
@@ -108,15 +110,15 @@ export default class Audio extends Element {
     }
 
     get currentTime() {
-        return _innerAudioContextMap[this._$sn].currentTime
+        return _innerAudioContext[this].currentTime
     }
 
     set currentTime(value) {
-        _innerAudioContextMap[this._$sn].seek(value)
+        _innerAudioContext[this].seek(value)
     }
 
     get duration() {
-        return _innerAudioContextMap[this._$sn].duration
+        return _innerAudioContext[this].duration
     }
 
     get src() {
@@ -128,7 +130,7 @@ export default class Audio extends Element {
         this._loaded = false
         this.readyState = Audio.HAVE_NOTHING
 
-        const innerAudioContext = _innerAudioContextMap[this._$sn]
+        const innerAudioContext = _innerAudioContext[this]
 
         innerAudioContext.src = value
     }
@@ -139,7 +141,7 @@ export default class Audio extends Element {
 
     set loop(value) {
         this._loop = value
-        _innerAudioContextMap[this._$sn].loop = value
+        _innerAudioContext[this].loop = value
     }
 
     get autoplay() {
@@ -148,7 +150,7 @@ export default class Audio extends Element {
 
     set autoplay(value) {
         this._autoplay = value
-        _innerAudioContextMap[this._$sn].autoplay = value
+        _innerAudioContext[this].autoplay = value
     }
 
     get paused() {
@@ -162,7 +164,7 @@ export default class Audio extends Element {
     set volume(value) {
         this._volume = value
         if (!this._muted) {
-            _innerAudioContextMap[this._$sn].volume = value
+            _innerAudioContext[this].volume = value
         }
     }
 
@@ -173,9 +175,9 @@ export default class Audio extends Element {
     set muted(value) {
         this._muted = value
         if (value) {
-            _innerAudioContextMap[this._$sn].volume = 0
+            _innerAudioContext[this].volume = 0
         } else {
-            _innerAudioContextMap[this._$sn].volume = this._volume
+            _innerAudioContext[this].volume = this._volume
         }
     }
 
@@ -187,9 +189,3 @@ export default class Audio extends Element {
         return newAudio
     }
 }
-
-Audio.HAVE_NOTHING = 0
-Audio.HAVE_METADATA = 1
-Audio.HAVE_CURRENT_DATA = 2
-Audio.HAVE_FUTURE_DATA = 3
-Audio.HAVE_ENOUGH_DATA = 4
