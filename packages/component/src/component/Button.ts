@@ -44,7 +44,6 @@ export class Button extends Rect<ButtonOptions> {
             width: this.opts.width ?? text.width + this.opts.padding!,
             height: this.opts.height ?? text.height + this.opts.padding!
         }
-        this.interactive = true;
         this.eventMode = 'static';
         if (this.opts.onClick) {
             this.on('pointerup', this.opts.onClick)
