@@ -44,9 +44,10 @@ export class Button extends Rect<ButtonOptions> {
             width: this.opts.width ?? text.width + this.opts.padding!,
             height: this.opts.height ?? text.height + this.opts.padding!
         }
+        this.interactive = true;
         this.eventMode = 'static';
         if (this.opts.onClick) {
-            this.on('pointerdown', this.opts.onClick)
+            this.on('pointerup', this.opts.onClick)
         }
         super.drawer();
         this.append(text, {})
@@ -68,7 +69,7 @@ export class Button extends Rect<ButtonOptions> {
 
     set onClick(callback: (event: FederatedPointerEvent) => void) {
         this.opts.onClick = callback;
-        this.on('pointerdown', callback)
+        this.on('pointerup', callback)
     }
 
     set buttonHeight(height: number) {
