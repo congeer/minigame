@@ -13,11 +13,13 @@ export default {
     baseURL: '',
 
     addEventListener(type, handle) {
+        console.log(type, handle)
         stack[type] = stack[type] || []
         stack[type].push(handle)
     },
 
     removeEventListener(type, handle) {
+        console.log(type, handle)
         if (stack[type] && stack[type].length) {
             const i = stack[type].indexOf(handle)
             i !== -1 && stack[type].splice(i)
@@ -25,6 +27,7 @@ export default {
     },
 
     dispatch(ev) {
+        console.log(ev)
         const queue = stack[ev.type]
         queue && queue.forEach(handle => handle(ev))
     },
