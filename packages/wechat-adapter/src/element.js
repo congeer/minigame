@@ -1,9 +1,11 @@
 import {canvas} from './canvas'
+import EventTarget from './EventTarget'
 
-export class Element {
+export class Element extends EventTarget {
     style = {cursor: null}
 
     constructor(tag) {
+        super();
     }
 
     appendChild() {
@@ -12,14 +14,6 @@ export class Element {
     removeChild() {
     }
 
-    addEventListener() {
-    }
-
-    removeEventListener() {
-    }
-
-    dispatchEvent(event = {}) {
-    }
 }
 
 export const HTMLCanvasElement = canvas.constructor

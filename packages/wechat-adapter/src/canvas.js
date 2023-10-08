@@ -3,6 +3,7 @@ function Canvas() {
     canvas.style = {cursor: null}
     try {
         canvas.__proto__.parentElement = true
+        canvas.__proto__.isConnected = true
     } catch (err) {
     }
 
