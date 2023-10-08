@@ -1,6 +1,6 @@
 {
   "name": "@minigame/component",
-  "version": "0.1.23",
+  "version": "0.1.25",
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
   "main": "lib/index.js",
