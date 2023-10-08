@@ -2,6 +2,7 @@ import {Canvas} from './canvas'
 import Image from './image'
 import {Element} from './element'
 import Audio from "./audio";
+import Video from "./video";
 
 const stack = {}
 
@@ -43,6 +44,10 @@ export default {
 
             case 'audio': {
                 return new Audio()
+            }
+
+            case 'video' : {
+                return new Video()
             }
 
             default: {
