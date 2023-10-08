@@ -1,6 +1,6 @@
 {
   "name": "@minigame/cli",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "description": "minigame cli",
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
@@ -26,7 +26,7 @@
     "@babel/plugin-transform-runtime": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
-    "@minigame/wechat-adapter": "^0.1.28",
+    "@minigame/wechat-adapter": "^0.1.29",
     "@types/inquirer": "^8.0.0",
     "@types/node": "^16.18.39",
     "babel-loader": "^9.1.2",
