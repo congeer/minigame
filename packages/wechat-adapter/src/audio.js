@@ -1,11 +1,5 @@
 import {Element} from "./element";
 
-Audio.HAVE_NOTHING = 0
-Audio.HAVE_METADATA = 1
-Audio.HAVE_CURRENT_DATA = 2
-Audio.HAVE_FUTURE_DATA = 3
-Audio.HAVE_ENOUGH_DATA = 4
-
 const _innerAudioContext = new WeakMap()
 
 export default class Audio extends Element {
@@ -189,3 +183,9 @@ export default class Audio extends Element {
         return newAudio
     }
 }
+
+Audio.HAVE_NOTHING = 0
+Audio.HAVE_METADATA = 1
+Audio.HAVE_CURRENT_DATA = 2
+Audio.HAVE_FUTURE_DATA = 3
+Audio.HAVE_ENOUGH_DATA = 4
