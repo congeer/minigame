@@ -16,16 +16,16 @@
     "version:major": "lerna version major --yes"
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "^5.0.0",
-    "@rollup/plugin-commonjs": "^24.1.0",
-    "@rollup/plugin-json": "^6.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@rollup/plugin-typescript": "^11.1.0",
-    "esbuild": "^0.19.4",
+    "@rollup/plugin-alias": "^5.0.1",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-json": "^6.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.3",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "esbuild": "^0.19.5",
     "lerna": "^7.1.4",
-    "minigame-api-typings": "^3.7.3",
-    "rimraf": "^5.0.0",
-    "rollup": "^3.20.2",
-    "rollup-plugin-esbuild": "^6.0.2"
+    "minigame-api-typings": "^3.8.3",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.1.5",
+    "rollup-plugin-esbuild": "^6.1.0"
   }
 }
