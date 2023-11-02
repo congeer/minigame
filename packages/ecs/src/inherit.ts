@@ -86,40 +86,49 @@ export function inherit(targetType: any, parentType: any): any {
     return constructor;
 }
 
-function createConstructorFromFunction(name: string, func: Function, parentType: any) {
+function createConstructorFromFunction<T>(
+    name: string,
+    func: (...args: any) => T,
+    methods: Methods<T>,
+    parentType: new (...args: any) => any
+): new (...args: any) => T & MethodsReturn<T> {
     const SubClass = class extends parentType {
         constructor(...args: any) {
             super(...args);
             let obj = func(...args);
             Object.getOwnPropertyNames(obj).forEach((prop) => {
-                if (obj[prop] instanceof Function) {
-                    if (SubClass._init_) {
-                        return;
-                    }
-                    Object.defineProperty(SubClass.prototype, prop, {
-                        value: function (...args: any[]) {
-                            return obj[prop](this, ...args)
-                        },
-                        writable: false,
-                    })
-                    return;
-                }
                 Object.defineProperty(
                     this,
                     prop,
                     Object.getOwnPropertyDescriptor(obj, prop) || Object.create(null)
                 )
             })
-            SubClass._init_ = true;
         }
     }
+    Object.keys(methods).forEach(prop => {
+        Object.defineProperty(SubClass.prototype, prop, {
+            value: function (...args: any[]) {
+                return methods[prop](this, ...args)
+            },
+            writable: false,
+        })
+    })
     Object.defineProperty(SubClass, "name", {value: name})
-    return SubClass;
+    return SubClass as new (...args: any) => T & MethodsReturn<T>;
 }
 
-export function inheritFunction(name: string, func: Function, parentType: any): any {
-    const type = createConstructorFromFunction(name, func, parentType);
-    const newVar = (...args: any[]) => new type(...args);
+export function inheritFunction<T>(options: DefineOptions<T>, parentType: any): Creator<T> {
+    const {name, initialData, methods} = options;
+    if (!name) {
+        throw new Error('`name` is a required option')
+    }
+    if (!initialData) {
+        throw new Error('`initialData` is a required option')
+    }
+    const initFn = (typeof initialData == 'function'
+        ? initialData : () => initialData) as (...args: any) => T
+    const type = createConstructorFromFunction(name, initFn, methods || {}, parentType);
+    const newVar = (...args: any) => new type(...args);
     newVar.prototype = type.prototype;
     return newVar;
 }
@@ -143,4 +152,18 @@ export function typeId(type: any) {
         typeIdList.push(id);
     }
     return id;
+}
+
+export type Methods<T> = { [key: string]: (self: T, ...args: any) => any }
+
+export type MethodsReturn<T> = { [Type in keyof Methods<T>]: (...args: any) => any }
+
+export type InitialData<T> = T | ((...args: any) => T);
+
+export type Creator<T> = { (...args: any): T & MethodsReturn<T>; prototype: any; };
+
+export type DefineOptions<T> = {
+    name: string,
+    initialData: InitialData<T>,
+    methods?: Methods<T>
 }

@@ -1,5 +1,5 @@
+import {Creator, DefineOptions, inherit, inheritFunction, isInstance, matchType} from "../inherit";
 import {MetaInfo} from "../meta";
-import {inherit, inheritFunction, isInstance, isType, matchType} from "../inherit";
 import {isComponent} from "./components";
 
 export class Bundles {
@@ -36,6 +36,9 @@ export const bundle = function (target: any): typeof target {
     return inherit(target, Bundle);
 }
 
-export const defineBundle = (name: string, obj: () => any) => {
-    return inheritFunction(name, obj, Bundle);
+export function defineBundle<B>(
+    options: DefineOptions<B>
+): Creator<B> {
+    return inheritFunction(options, Bundle);
 }
+

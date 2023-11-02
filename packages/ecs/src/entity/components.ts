@@ -1,5 +1,5 @@
+import {Creator, DefineOptions, inherit, inheritFunction, isInstance, matchType} from "../inherit";
 import {MetaInfo} from "../meta";
-import {inherit, inheritFunction, isInstance, isType, matchType} from "../inherit";
 
 export class Components {
 
@@ -30,6 +30,8 @@ export const component = function (target: any): typeof target {
     return inherit(target, Component);
 }
 
-export const defineComponent = (name: string, obj: () => any) => {
-    return inheritFunction(name, obj, Component);
+export function defineComponent<C>(
+    options: DefineOptions<C>
+): Creator<C> {
+    return inheritFunction(options, Component);
 }
