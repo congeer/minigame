@@ -1,20 +1,21 @@
 import {query, res, runWithWorld, spawn} from "./commands";
 import {Bundles, Components, Entities, Entity, EntityData, isBundle, isComponent, isQueryFn} from "./entity";
+import {hierarchySpawn} from "./entity/hierarchy";
 import {Storages} from "./storage";
 import {Schedule, Schedules} from "./system";
 
 
-const getEntityFromTree = function (list: EntityData[], entity: Entity): EntityData | undefined {
-    for (let entityDatum of list) {
-        if (entityDatum.id() === entity) {
-            return entityDatum;
-        }
-        const entityFromTree = getEntityFromTree(entityDatum.children, entity);
-        if (entityFromTree) {
-            return entityFromTree;
-        }
-    }
-}
+// const getEntityFromTree = function (list: EntityData[], entity: Entity): EntityData | undefined {
+//     for (let entityDatum of list) {
+//         if (entityDatum.id() === entity) {
+//             return entityDatum;
+//         }
+//         const entityFromTree = getEntityFromTree(entityDatum.children, entity);
+//         if (entityFromTree) {
+//             return entityFromTree;
+//         }
+//     }
+// }
 
 export class World {
     entities: Entities;
@@ -26,8 +27,6 @@ export class World {
 
     storages: Storages;
 
-    children: EntityData[] = [];
-
     _changeTick: number = 0;
 
     constructor() {
@@ -35,7 +34,7 @@ export class World {
         this.components = new Components();
         this.bundles = new Bundles();
         this.storages = new Storages();
-        this.registerCommand("spawn", spawn);
+        this.registerCommand("spawn", hierarchySpawn);
         this.registerCommand("query", query);
         this.registerCommand("res", res);
         this.registerCommand("runWithWorld", runWithWorld);
@@ -58,7 +57,7 @@ export class World {
     }
 
     entity(entity: Entity): EntityData | undefined {
-        return getEntityFromTree(this.children, entity);
+        return this.entities.data(entity);
     }
 
     addSchedule(scheduleLabel: any, schedule: Schedule) {
@@ -94,9 +93,8 @@ export class World {
                 throw new Error("Not Bundle or Component");
             }
         }
-        this.entities.insert(entity)
-        const entityData = new EntityData(this, entity, this.entities, this.bundles, this.components);
-        this.children.push(entityData);
+        const entityData = new EntityData(this, entity);
+        this.entities.insert(entityData)
         return entityData;
     }
 
@@ -135,8 +133,7 @@ export class World {
         const entity = this.entities.get(id);
         if (entity) {
             if (types.length > 0) {
-                let data = this.entity(entity);
-                return types.map(t => data!.get(t))
+                return types.map(t => entity!.get(t))
             } else {
                 return entity;
             }

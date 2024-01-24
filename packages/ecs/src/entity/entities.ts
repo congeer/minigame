@@ -1,14 +1,14 @@
 import {typeId} from "../inherit";
-import {defineType, getType, Meta, MetaInfo} from "../meta";
+import {defineType, getType, MetaInfo} from "../meta";
 import {World} from "../world";
-import {Bundles, isBundle} from "./bundles";
-import {Components, isComponent} from "./components";
+import {isBundle} from "./bundles";
+import {isComponent} from "./components";
 
 export class Entities {
 
     #table: { [key: string]: string[] } = {}
 
-    #map: { [key: string]: Entity } = {}
+    #data: { [key: string]: EntityData } = {}
 
     query(...types: any[]): Entity[] {
         const include = types.map(t => {
@@ -29,16 +29,24 @@ export class Entities {
         for (let excludeElement of exclude) {
             first = first.filter(v => !excludeElement.includes(v))
         }
-        return Array.from(first).map(k => this.#map[k]).filter(v => v);
+        return Array.from(first).map(k => this.#data[k].id()).filter(v => v);
+    }
+
+    data(entity: Entity) {
+        if (!this.#data[entity.id()]) {
+            return undefined;
+        }
+        return this.#data[entity.id()];
     }
 
     get(id: string) {
-        return this.#map[id]
+        return this.#data[id]
     }
 
-    insert(entity: Entity) {
+    insert(entityData: EntityData) {
+        const entity = entityData.id();
         const id = entity.id();
-        this.#map[id] = entity;
+        this.#data[id] = entityData;
         for (let type of entity.keys()) {
             if (!this.#table[type]) {
                 this.#table[type] = [];
@@ -46,11 +54,32 @@ export class Entities {
             this.#table[type].push(id);
         }
     }
+
+    remove(entity: Entity) {
+        const id = entity.id();
+        const entityData = this.#data[id];
+        if (!entityData) {
+            return;
+        }
+        delete this.#data[id];
+        for (let type of entity.keys()) {
+            if (!this.#table[type]) {
+                continue;
+            }
+            this.#table[type] = this.#table[type].filter(v => v !== id);
+        }
+    }
+
+    replace(entityData: EntityData) {
+        this.remove(entityData.id());
+        this.insert(entityData);
+    }
+
 }
 
 export class Entity extends MetaInfo {
 
-    #metas: { [key: string]: string } = {};
+    metas: { [key: string]: string } = {};
 
     constructor() {
         super(Entity);
@@ -58,39 +87,32 @@ export class Entity extends MetaInfo {
 
     insert(target: any) {
         let type = typeId(target);
-        if (this.#metas[type]) {
+        if (this.metas[type]) {
             throw new Error("Has same Component " + type)
         }
-        this.#metas[type] = target.id();
+        this.metas[type] = target.id();
     }
 
     keys() {
-        return Object.keys(this.#metas);
+        return Object.keys(this.metas);
     }
 
     values() {
-        return Object.values(this.#metas);
+        return Object.values(this.metas);
     }
 
     get(type: string) {
-        return this.#metas[typeId(type)]
+        return this.metas[typeId(type)]
     }
 
 }
 
 export class EntityData {
     #world: World;
-    #entities: Entities;
-    #components: Components;
-    #bundles: Bundles;
     #entity: Entity;
-    children: EntityData[] = [];
 
-    constructor(world: World, entity: Entity, entities: Entities, bundles: Bundles, components: Components) {
+    constructor(world: World, entity: Entity) {
         this.#world = world;
-        this.#entities = entities;
-        this.#bundles = bundles;
-        this.#components = components;
         this.#entity = entity;
     }
 
@@ -110,23 +132,27 @@ export class EntityData {
         return this.#world.get(id);
     }
 
+    list(){
+        return this.#entity.values().map(k => this.#world.get(k));
+    }
+
     insert(...args: any[]) {
         if (args.length == 0) {
             throw new Error("No Args")
         }
         for (let arg of args) {
-            this.#entity.insert(arg);
             if (isBundle(arg)) {
-                this.#bundles.insert(arg);
+                this.#world.bundles.insert(arg);
                 for (let component of arg.getComponents()) {
-                    this.#components.insert(component);
+                    this.#world.components.insert(component);
                     this.#entity.insert(component)
                 }
             } else if (isComponent(arg)) {
-                this.#components.insert(arg);
+                this.#world.components.insert(arg);
             } else {
                 throw new Error("Not Bundle or Component");
             }
+            this.#entity.insert(arg);
         }
         return this;
     }

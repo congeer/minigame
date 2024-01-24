@@ -1,35 +1,35 @@
 import {World} from "../world";
-import {Bundles, isBundle} from "./bundles";
-import {component, Components, isComponent} from "./components";
-// import {defineCommand} from "../commands";
-import {Entities, Entity, EntityData} from "./entities";
+import {isBundle} from "./bundles";
+import {component, isComponent} from "./components";
+import {Entity, EntityData} from "./entities";
 
 @component
 export class Parent {
+    parent: HierarchyEntityData;
 
+    constructor(parent: HierarchyEntityData) {
+        this.parent = parent;
+    }
 }
 
 @component
 export class Children {
+    children: HierarchyEntityData[] = [];
+
+    append(child: HierarchyEntityData) {
+        this.children.push(child);
+    }
 
 }
 
 
 export class EntityChildrenSpawner {
     #world: World;
-    #entities: Entities;
-    #components: Components;
-    #bundles: Bundles;
-    #entity: Entity;
-    #children: EntityData[];
+    #parent: HierarchyEntityData;
 
-    constructor(world: World, entity: Entity, entities: Entities, bundles: Bundles, components: Components, children: EntityData[]) {
+    constructor(world: World, parentEntityData: HierarchyEntityData) {
         this.#world = world;
-        this.#entities = entities;
-        this.#bundles = bundles;
-        this.#components = components;
-        this.#entity = entity;
-        this.#children = children;
+        this.#parent = parentEntityData;
     }
 
     spawn(...args: any[]): EntityData {
@@ -37,36 +37,80 @@ export class EntityChildrenSpawner {
             throw new Error("No Args")
         }
         const entity = new Entity();
+        args.push(new Parent(this.#parent));
         for (let arg of args) {
-            entity.insert(arg);
             if (isBundle(arg)) {
-                this.#bundles.insert(arg);
+                this.#world.bundles.insert(arg);
                 for (let component of arg.getComponents()) {
-                    this.#components.insert(component);
+                    this.#world.components.insert(component);
                     entity.insert(component)
                 }
             } else if (isComponent(arg)) {
-                this.#components.insert(arg);
+                this.#world.components.insert(arg);
             } else {
                 throw new Error("Not Bundle or Component");
             }
+            entity.insert(arg);
         }
-        this.#entities.insert(entity)
-        const entityData = new EntityData(this.#world, entity, this.#entities, this.#bundles, this.#components);
-        this.#children.push(entityData);
+        const entityData = new HierarchyEntityData(this.#world, entity);
+        this.#world.entities.insert(entityData)
+        let children = this.#parent.get(Children);
+        if (!children) {
+            this.#parent.insert(new Children());
+            children = this.#parent.get(Children);
+        }
+        children.append(entityData);
+        this.#world.entities.replace(this.#parent);
         return entityData;
     }
 
     parent() {
-        return this.#entity;
+        return this.#parent;
     }
 
 }
 
 
+export class HierarchyEntityData extends EntityData {
+    #world: World;
 
-//
-// export const withChildren = defineCommand({
-//     name: "withChildren",
-//
-// })
+    constructor(world: World, entity: Entity) {
+        super(world, entity);
+        this.#world = world;
+    }
+
+    withChildren(fn: (spawner: EntityChildrenSpawner) => void) {
+        let entityChildrenInsert = new EntityChildrenSpawner(this.#world, this);
+        fn(entityChildrenInsert);
+        return this;
+    }
+
+}
+
+export interface HierarchySpawnCommand {
+    spawn: (...args: any[]) => HierarchyEntityData
+}
+
+export const hierarchySpawn = (world: World) => (...args: any[]) => {
+    if (args.length == 0) {
+        throw new Error("No Args")
+    }
+    const entity = new Entity();
+    for (let arg of args) {
+        entity.insert(arg);
+        if (isBundle(arg)) {
+            world.bundles.insert(arg);
+            for (let component of arg.getComponents()) {
+                world.components.insert(component);
+                entity.insert(component)
+            }
+        } else if (isComponent(arg)) {
+            world.components.insert(arg);
+        } else {
+            throw new Error("Not Bundle or Component");
+        }
+    }
+    const entityData = new HierarchyEntityData(world, entity);
+    world.entities.insert(entityData)
+    return entityData;
+}

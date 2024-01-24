@@ -27,7 +27,6 @@ export class Storages {
             }
         })
         if (this.map[key]) {
-            console.log(res)
             throw new Error("Repeat Resource " + key)
         } else {
             this.map[key] = proxyRes;
