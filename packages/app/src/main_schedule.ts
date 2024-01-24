@@ -1,4 +1,5 @@
-import {isScheduleLabel, resource, Schedule, scheduleLabel, World} from "@minigame/ecs";
+import {isScheduleLabel, resource, Schedule, scheduleLabel} from "@minigame/ecs";
+import {WorldCommand} from "@minigame/ecs/src/commands";
 import {App} from "./app";
 import {Plugin} from './plugin';
 
@@ -86,17 +87,19 @@ let runAtLeastOnce = false;
 @scheduleLabel
 class MainLabel {
 
-    runMain(world: World) {
-        if (!runAtLeastOnce) {
-            world.runSchedule(PreStartup);
-            world.runSchedule(Startup);
-            world.runSchedule(PostStartup);
-            runAtLeastOnce = true;
-        }
-        const order = world.resource(MainScheduleOrder);
-        for (let label of order.labels) {
-            world.runSchedule(label);
-        }
+    runMain(command: WorldCommand) {
+        command.runWithWorld(world => {
+            if (!runAtLeastOnce) {
+                world.runSchedule(PreStartup);
+                world.runSchedule(Startup);
+                world.runSchedule(PostStartup);
+                runAtLeastOnce = true;
+            }
+            const order = world.resource(MainScheduleOrder);
+            for (let label of order.labels) {
+                world.runSchedule(label);
+            }
+        })
     }
 }
 

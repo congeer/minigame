@@ -37,7 +37,8 @@ export class Schedule {
 
 function runSystemConfig(config: SystemConfig, world: World) {
     for (let condition of config.conditions) {
-        if (!condition(world)) {
+        const {res, query} = world.commands;
+        if (!condition({res, query})) {
             return;
         }
     }
@@ -45,7 +46,7 @@ function runSystemConfig(config: SystemConfig, world: World) {
         if (isType(system, SystemConfig)) {
             runSystemConfig(system, world);
         } else {
-            system(world);
+            system(world.commands);
         }
     }
 }

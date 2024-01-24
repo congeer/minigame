@@ -1,3 +1,4 @@
+import {query, res, runWithWorld, spawn} from "./commands";
 import {Bundles, Components, Entities, Entity, EntityData, isBundle, isComponent, isQueryFn} from "./entity";
 import {Storages} from "./storage";
 import {Schedule, Schedules} from "./system";
@@ -16,33 +17,40 @@ const getEntityFromTree = function (list: EntityData[], entity: Entity): EntityD
 }
 
 export class World {
-    #entities: Entities;
-    #components: Components;
-    #bundles: Bundles;
+    entities: Entities;
+    components: Components;
+    bundles: Bundles;
+    commands: {
+        [key: string]: any
+    } = {}
 
-    #storages: Storages;
+    storages: Storages;
 
     children: EntityData[] = [];
 
     _changeTick: number = 0;
 
     constructor() {
-        this.#entities = new Entities();
-        this.#components = new Components();
-        this.#bundles = new Bundles();
-        this.#storages = new Storages();
+        this.entities = new Entities();
+        this.components = new Components();
+        this.bundles = new Bundles();
+        this.storages = new Storages();
+        this.registerCommand("spawn", spawn);
+        this.registerCommand("query", query);
+        this.registerCommand("res", res);
+        this.registerCommand("runWithWorld", runWithWorld);
     }
 
     tick(t: number) {
         this._changeTick += 1;
-        for (let key in this.#storages.map) {
-            this.#storages.map[key]._lastTick_ = t;
-            this.#storages.map[key]._currentTick_ = this._changeTick;
+        for (let key in this.storages.map) {
+            this.storages.map[key]._lastTick_ = t;
+            this.storages.map[key]._currentTick_ = this._changeTick;
         }
     }
 
     query(...types: any[]): any[][] {
-        const entities = this.#entities.query(...types);
+        const entities = this.entities.query(...types);
         return entities.map(entity => {
             const data = this.entity(entity);
             return types.filter(t => !isQueryFn(t)).map(t => data!.get(t));
@@ -63,6 +71,10 @@ export class World {
         schedules.get(scheduleLabel)?.run(this);
     }
 
+    registerCommand(name: string, command: (world: World) => (args: any) => any) {
+        this.commands[name] = command(this);
+    }
+
     spawn(...args: any[]): EntityData {
         if (args.length == 0) {
             throw new Error("No Args")
@@ -71,19 +83,19 @@ export class World {
         for (let arg of args) {
             entity.insert(arg);
             if (isBundle(arg)) {
-                this.#bundles.insert(arg);
+                this.bundles.insert(arg);
                 for (let component of arg.getComponents()) {
-                    this.#components.insert(component);
+                    this.components.insert(component);
                     entity.insert(component)
                 }
             } else if (isComponent(arg)) {
-                this.#components.insert(arg);
+                this.components.insert(arg);
             } else {
                 throw new Error("Not Bundle or Component");
             }
         }
-        this.#entities.insert(entity)
-        const entityData = new EntityData(this, entity, this.#entities, this.#bundles, this.#components);
+        this.entities.insert(entity)
+        const entityData = new EntityData(this, entity, this.entities, this.bundles, this.components);
         this.children.push(entityData);
         return entityData;
     }
@@ -91,16 +103,16 @@ export class World {
     initResource(type: any) {
         const data = new type();
         data._changeTick_ = this._changeTick;
-        return this.#storages.insert(data);
+        return this.storages.insert(data);
     }
 
     insertResource(res: any) {
         res._changeTick_ = this._changeTick;
-        return this.#storages.insert(res);
+        return this.storages.insert(res);
     }
 
     resource(res: any): any {
-        return this.#storages.get(res);
+        return this.storages.get(res);
     }
 
     resourceWithInit(type: any): any {
@@ -112,15 +124,15 @@ export class World {
     }
 
     get(id: string, ...types: any[]): any {
-        const component = this.#components.get(id);
+        const component = this.components.get(id);
         if (component) {
             return component;
         }
-        const bundle = this.#bundles.get(id);
+        const bundle = this.bundles.get(id);
         if (bundle) {
             return bundle;
         }
-        const entity = this.#entities.get(id);
+        const entity = this.entities.get(id);
         if (entity) {
             if (types.length > 0) {
                 let data = this.entity(entity);

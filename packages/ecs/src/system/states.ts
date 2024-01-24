@@ -1,3 +1,4 @@
+import {QueryCommand, WorldCommand} from "../commands";
 import {inherit, isType, matchType, typeId} from "../inherit";
 import {MetaInfo} from "../meta";
 import {resource} from "../storage";
@@ -140,25 +141,29 @@ export class State {
 export function inState(value: any) {
     matchType(value, StateValue);
     const res = State.for(value.states);
-    return function (world: World) {
-        return world.resource(res).get().equals(value);
+    return function (command: QueryCommand) {
+        return command.res(res).get().equals(value);
     }
 }
 
 export function runEnterSchedule(states: any) {
-    return function (world: World) {
-        world.runSchedule(OnEnter.on(states.default()))
+    return function (command: WorldCommand) {
+        command.runWithWorld(world => {
+            world.runSchedule(OnEnter.on(states.default()))
+        })
     }
 }
 
 export function applyStateTransition(states: any) {
-    return function (world: World) {
-        const state = world.resource(State.for(states));
-        if (!state.isInit() && state.isChanged()) {
-            world.runSchedule(OnExit.on(state.prevState));
-            world.runSchedule(OnTransition.on(state.prevState, state.currentState));
-            world.runSchedule(OnEnter.on(state.currentState));
-        }
+    return function (command: WorldCommand) {
+        command.runWithWorld(world => {
+            const state = world.resource(State.for(states));
+            if (!state.isInit() && state.isChanged()) {
+                world.runSchedule(OnExit.on(state.prevState));
+                world.runSchedule(OnTransition.on(state.prevState, state.currentState));
+                world.runSchedule(OnEnter.on(state.currentState));
+            }
+        })
     }
 }
 
