@@ -1,5 +1,6 @@
 import {
     applyStateTransition,
+    CommandRegister,
     enumerate,
     matchType,
     runEnterSchedule,
@@ -12,6 +13,7 @@ import {
     SystemConfig,
     World
 } from "@minigame/ecs";
+import {HierarchyPlugin} from "./hierarchy";
 import {Main, MainSchedulePlugin, StateTransition} from "./main_schedule";
 import {Plugins} from "./plugins";
 
@@ -45,7 +47,7 @@ export class App {
 
     static default() {
         const app = new App(Main, runAppOnce);
-        app.addPlugins(MainSchedulePlugin)
+        app.addPlugins(MainSchedulePlugin, HierarchyPlugin)
         return app;
     }
 
@@ -69,6 +71,16 @@ export class App {
 
     addSchedule(label: any, schedule: Schedule) {
         this.world.addSchedule(label, schedule);
+        return this;
+    }
+
+    registerCommand(command: CommandRegister) {
+        this.world.registerCommand(command);
+        return this;
+    }
+
+    replaceCommand(command: CommandRegister) {
+        this.world.replaceCommand(command);
         return this;
     }
 

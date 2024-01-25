@@ -1,7 +1,6 @@
-import {World} from "../world";
-import {isBundle} from "./bundles";
-import {component, isComponent} from "./components";
-import {Entity, EntityData} from "./entities";
+import {component, Entity, EntityData, isBundle, isComponent, World} from "@minigame/ecs";
+import {App} from "./app";
+import {Plugin} from "./plugin";
 
 @component
 export class Parent {
@@ -87,30 +86,46 @@ export class HierarchyEntityData extends EntityData {
 
 }
 
-export interface HierarchySpawnCommand {
+export type HierarchySpawnCommand = {
     spawn: (...args: any[]) => HierarchyEntityData
 }
 
-export const hierarchySpawn = (world: World) => (...args: any[]) => {
-    if (args.length == 0) {
-        throw new Error("No Args")
-    }
-    const entity = new Entity();
-    for (let arg of args) {
-        entity.insert(arg);
-        if (isBundle(arg)) {
-            world.bundles.insert(arg);
-            for (let component of arg.getComponents()) {
-                world.components.insert(component);
-                entity.insert(component)
+export const hierarchySpawnCommandRegister = (world: World) => {
+    return {
+        spawn: (...args: any[]) => {
+            if (args.length == 0) {
+                throw new Error("No Args")
             }
-        } else if (isComponent(arg)) {
-            world.components.insert(arg);
-        } else {
-            throw new Error("Not Bundle or Component");
+            const entity = new Entity();
+            for (let arg of args) {
+                entity.insert(arg);
+                if (isBundle(arg)) {
+                    world.bundles.insert(arg);
+                    for (let component of arg.getComponents()) {
+                        world.components.insert(component);
+                        entity.insert(component)
+                    }
+                } else if (isComponent(arg)) {
+                    world.components.insert(arg);
+                } else {
+                    throw new Error("Not Bundle or Component");
+                }
+            }
+            const entityData = new HierarchyEntityData(world, entity);
+            world.entities.insert(entityData)
+            return entityData;
         }
     }
-    const entityData = new HierarchyEntityData(world, entity);
-    world.entities.insert(entityData)
-    return entityData;
+}
+
+
+export class HierarchyPlugin extends Plugin {
+    build(app: App): void {
+        app.replaceCommand(hierarchySpawnCommandRegister);
+    }
+
+    name() {
+        return "HierarchyPlugin"
+    }
+
 }

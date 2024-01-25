@@ -1,5 +1,5 @@
 import {isScheduleLabel, resource, Schedule, scheduleLabel} from "@minigame/ecs";
-import {WorldCommand} from "@minigame/ecs/src/commands";
+import {RunWithWorldCommand} from "@minigame/ecs/src/commands";
 import {App} from "./app";
 import {Plugin} from './plugin';
 
@@ -87,7 +87,7 @@ let runAtLeastOnce = false;
 @scheduleLabel
 class MainLabel {
 
-    runMain(command: WorldCommand) {
+    runMain(command: RunWithWorldCommand) {
         command.runWithWorld(world => {
             if (!runAtLeastOnce) {
                 world.runSchedule(PreStartup);
