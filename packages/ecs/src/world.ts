@@ -1,21 +1,7 @@
-import {query, res, runWithWorld, spawn} from "./commands";
+import {CommandRegister, queryCommandRegister, runWithWorldCommandRegister, spawnCommandRegister} from "./commands";
 import {Bundles, Components, Entities, Entity, EntityData, isBundle, isComponent, isQueryFn} from "./entity";
-import {hierarchySpawn} from "./entity/hierarchy";
 import {Storages} from "./storage";
 import {Schedule, Schedules} from "./system";
-
-
-// const getEntityFromTree = function (list: EntityData[], entity: Entity): EntityData | undefined {
-//     for (let entityDatum of list) {
-//         if (entityDatum.id() === entity) {
-//             return entityDatum;
-//         }
-//         const entityFromTree = getEntityFromTree(entityDatum.children, entity);
-//         if (entityFromTree) {
-//             return entityFromTree;
-//         }
-//     }
-// }
 
 export class World {
     entities: Entities;
@@ -34,10 +20,9 @@ export class World {
         this.components = new Components();
         this.bundles = new Bundles();
         this.storages = new Storages();
-        this.registerCommand("spawn", hierarchySpawn);
-        this.registerCommand("query", query);
-        this.registerCommand("res", res);
-        this.registerCommand("runWithWorld", runWithWorld);
+        this.registerCommand(queryCommandRegister);
+        this.registerCommand(spawnCommandRegister);
+        this.registerCommand(runWithWorldCommandRegister);
     }
 
     tick(t: number) {
@@ -70,8 +55,26 @@ export class World {
         schedules.get(scheduleLabel)?.run(this);
     }
 
-    registerCommand(name: string, command: (world: World) => (args: any) => any) {
-        this.commands[name] = command(this);
+    registerCommand(commandRegister: CommandRegister) {
+        // this.commands[name] = command(this);
+        const command = commandRegister(this);
+        for (let key in command) {
+            if (this.commands[key]) {
+                throw new Error(`Command ${key} already exists`)
+            }
+            this.commands[key] = command[key];
+        }
+    }
+
+    replaceCommand(commandRegister: CommandRegister) {
+        // this.commands[name] = command(this);
+        const command = commandRegister(this);
+        for (let key in command) {
+            if (!this.commands[key]) {
+                throw new Error(`Command ${key} not exists`)
+            }
+            this.commands[key] = command[key];
+        }
     }
 
     spawn(...args: any[]): EntityData {

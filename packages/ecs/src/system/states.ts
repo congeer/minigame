@@ -1,8 +1,7 @@
-import {QueryCommand, WorldCommand} from "../commands";
+import {QueryCommand, RunWithWorldCommand} from "../commands";
 import {inherit, isType, matchType, typeId} from "../inherit";
 import {MetaInfo} from "../meta";
 import {resource} from "../storage";
-import {World} from "../world";
 import {scheduleLabel} from "./schedules";
 
 @scheduleLabel
@@ -147,7 +146,7 @@ export function inState(value: any) {
 }
 
 export function runEnterSchedule(states: any) {
-    return function (command: WorldCommand) {
+    return function (command: RunWithWorldCommand) {
         command.runWithWorld(world => {
             world.runSchedule(OnEnter.on(states.default()))
         })
@@ -155,7 +154,7 @@ export function runEnterSchedule(states: any) {
 }
 
 export function applyStateTransition(states: any) {
-    return function (command: WorldCommand) {
+    return function (command: RunWithWorldCommand) {
         command.runWithWorld(world => {
             const state = world.resource(State.for(states));
             if (!state.isInit() && state.isChanged()) {

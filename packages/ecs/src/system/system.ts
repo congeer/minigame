@@ -1,12 +1,9 @@
 import {QueryCommand} from "../commands";
 import {MetaInfo} from "../meta";
 
-// export type System = (world: World) => void;
 export type System = (command: any) => void;
 
-// export type Condition = (world: World) => boolean;
 export type Condition = (command: QueryCommand) => boolean;
-
 
 export const runOnce = (): Condition => {
     let hasRun = false;
