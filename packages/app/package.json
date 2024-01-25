@@ -24,7 +24,7 @@
     "url": "https://github.com/congeer/minigame/issues"
   },
   "dependencies": {
-    "nanoid": "^5.0.2",
+    "nanoid": "^5.0.4",
     "@minigame/ecs": "^0.2.0"
   }
 }
