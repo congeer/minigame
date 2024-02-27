@@ -16,7 +16,7 @@ export function isInstance(target: any, type: any) {
 
 export const matchType = (target: any, type: any, msg?: string) => {
     if (!isType(target, type)) {
-        throw new Error(msg ?? ((JSON.stringify(target) ?? target) + " not match " + type.name))
+        throw new Error(msg ?? (target + " not match " + type.name))
     }
 }
 

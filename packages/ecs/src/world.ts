@@ -1,4 +1,10 @@
-import {CommandRegister, queryCommandRegister, runWithWorldCommandRegister, spawnCommandRegister} from "./commands";
+import {
+    CommandEnhance,
+    CommandRegister,
+    queryCommandRegister,
+    runWithWorldCommandRegister,
+    spawnCommandRegister
+} from "./commands";
 import {Bundles, Components, Entities, Entity, EntityData, isBundle, isComponent, isQueryFn} from "./entity";
 import {Storages} from "./storage";
 import {Schedule, Schedules} from "./system";
@@ -74,6 +80,16 @@ export class World {
                 throw new Error(`Command ${key} not exists`)
             }
             this.commands[key] = command[key];
+        }
+    }
+
+    enhanceCommand(commandEnhance: CommandEnhance) {
+        const key = commandEnhance.key;
+        const sourceCmd = this.commands[key];
+        this.commands[key] = (...arg:any) => {
+            commandEnhance.before(this, ...arg);
+            const ret = sourceCmd(...arg);
+            return commandEnhance.after(this, ret);
         }
     }
 

@@ -5,6 +5,11 @@ export type CommandRegister = (world: World) => Command
 
 export type Command = { [key: string]: (args: any) => any }
 
+export type CommandEnhance = {
+    key: string
+    before: (world: World, ...args: any[]) => void
+    after: (world: World, ret: any) => any
+}
 
 export type SpawnCommand = {
     spawn: (...args: any[]) => EntityData

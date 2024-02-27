@@ -1,5 +1,5 @@
 import {
-    applyStateTransition,
+    applyStateTransition, CommandEnhance,
     CommandRegister,
     enumerate,
     matchType,
@@ -55,6 +55,11 @@ export class App {
         this.runner(this)
     }
 
+    setRunner(runner: any) {
+        this.runner = runner;
+        return this;
+    }
+
     addSystems(type: any, ...systems: (System | SystemConfig)[]): App {
         let schedules: Schedules = this.world.resource(Schedules);
         if (!schedules) {
@@ -84,6 +89,11 @@ export class App {
         return this;
     }
 
+    enhanceCommand(command: CommandEnhance) {
+        this.world.enhanceCommand(command);
+        return this;
+    }
+
     addState(states: any): App {
         matchType(states, States)
         enumerate(states)
@@ -95,7 +105,9 @@ export class App {
 
     addPlugins(...plugins: any[]): App {
         for (let plugin of plugins) {
-            plugin = new plugin();
+            if (typeof plugin === "function") {
+                plugin = new plugin();
+            }
             if (plugin.isUnique() && this.#plugins.pluginNames.indexOf(plugin.name()) !== -1) {
                 throw new Error(plugin.name() + " is duplicate.");
             }
