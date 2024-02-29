@@ -62,7 +62,6 @@ const spawnEnhance: CommandEnhance = {
     },
     after: (world: World, ret: HierarchyEntityData) => {
         const container = ret.get(PIXIContainer);
-        console.log(container)
         if (container) {
             world.resource(PixiApp).stage.addChild(container.container);
         }

@@ -1,5 +1,6 @@
 import {
-    applyStateTransition, CommandEnhance,
+    applyStateTransition,
+    CommandEnhance,
     CommandRegister,
     enumerate,
     matchType,
@@ -60,22 +61,22 @@ export class App {
         return this;
     }
 
-    addSystems(type: any, ...systems: (System | SystemConfig)[]): App {
+    addSystems(label: any, ...systems: (System | SystemConfig)[]): App {
         let schedules: Schedules = this.world.resource(Schedules);
         if (!schedules) {
             throw new Error("No schedules, try create app with new()");
         }
-        let schedule = schedules.get(type);
+        let schedule = schedules.get(label);
         if (!schedule) {
-            schedules.insert(type, new Schedule(...systems));
-        } else {
-            schedule.addSystems(...systems);
+            schedule = new Schedule(label);
+            schedules.insert(schedule);
         }
+        schedule.addSystems(...systems);
         return this;
     }
 
-    addSchedule(label: any, schedule: Schedule) {
-        this.world.addSchedule(label, schedule);
+    addSchedule(schedule: Schedule) {
+        this.world.addSchedule(schedule);
         return this;
     }
 

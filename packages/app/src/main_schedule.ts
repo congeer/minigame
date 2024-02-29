@@ -107,10 +107,10 @@ export const Main = new MainLabel();
 
 export class MainSchedulePlugin extends Plugin {
     build(app: App): void {
-        let mainSchedule = new Schedule();
-        let fixedUpdateLoopSchedule = new Schedule();
-        app.addSchedule(Main, mainSchedule)
-            .addSchedule(RunFixedUpdateLoop, fixedUpdateLoopSchedule)
+        const mainSchedule = new Schedule(Main);
+        const fixedUpdateLoopSchedule = new Schedule(RunFixedUpdateLoop);
+        app.addSchedule(mainSchedule)
+            .addSchedule(fixedUpdateLoopSchedule)
             .initResource(MainScheduleOrder)
             .addSystems(Main, Main.runMain);
     }

@@ -93,6 +93,14 @@ export class Entity extends MetaInfo {
         this.metas[type] = target.id();
     }
 
+    update(target: any) {
+        let type = typeId(target);
+        if (!this.metas[type]) {
+            throw new Error("Not Found Component " + type)
+        }
+        this.metas[type] = target.id();
+    }
+
     keys() {
         return Object.keys(this.metas);
     }
@@ -169,6 +177,12 @@ export const queryWithout = (type: any) => {
     const withoutFn = () => type;
     defineType(withoutFn, "Query", "without")
     return withoutFn;
+}
+
+export const queryHas = (type: any) => {
+    const hasFn = () => type;
+    defineType(hasFn, "Query", "has")
+    return hasFn;
 }
 
 export const isQueryFn = (type: any) => {

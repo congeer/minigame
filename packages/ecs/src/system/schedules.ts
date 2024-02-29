@@ -6,12 +6,15 @@ import {System, SystemConfig} from "./system";
 
 export class Schedule {
 
+    label: ScheduleLabel;
+
     #systems: SystemConfig[] = [];
 
     _lastTick: number = 0;
 
-    constructor(...systems: (System | SystemConfig)[]) {
-        this.addSystems(...systems);
+    constructor(label: any) {
+        matchType(label, ScheduleLabel);
+        this.label = label;
     }
 
     addSystems(...systems: (System | SystemConfig)[]) {
@@ -78,8 +81,8 @@ export class Schedules {
         return this.schedules[key];
     }
 
-    insert(label: any, schedule: Schedule) {
-        matchType(label, ScheduleLabel);
+    insert(schedule: Schedule) {
+        const label = schedule.label;
         const key = label.key();
         this.schedules[key] = schedule;
     }

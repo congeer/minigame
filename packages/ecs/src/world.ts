@@ -51,9 +51,9 @@ export class World {
         return this.entities.data(entity);
     }
 
-    addSchedule(scheduleLabel: any, schedule: Schedule) {
+    addSchedule(schedule: Schedule) {
         let schedules = this.resourceWithInit(Schedules) as Schedules;
-        schedules.insert(scheduleLabel, schedule)
+        schedules.insert(schedule)
     }
 
     runSchedule(scheduleLabel: any) {
