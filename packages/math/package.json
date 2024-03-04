@@ -1,0 +1,29 @@
+{
+  "name": "@minigame/math",
+  "version": "0.2.0",
+  "homepage": "https://github.com/congeer/minigame#readme",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "module": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/congeer/minigame.git"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "types": "tsc --emitDeclarationOnly --declaration --skipLibCheck --declarationDir lib",
+    "test": "node test.mjs"
+  },
+  "bugs": {
+    "url": "https://github.com/congeer/minigame/issues"
+  },
+  "dependencies": {
+    "nanoid": "^5.0.4"
+  }
+}
