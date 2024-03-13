@@ -14,11 +14,9 @@
     "url": "git+https://github.com/congeer/minigame.git"
   },
   "scripts": {
-    "clean": "rimraf lib",
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "types": "tsc --emitDeclarationOnly --declaration --skipLibCheck --declarationDir lib",
-    "test": "node test.mjs"
+    "types": "tsc --emitDeclarationOnly --declaration --skipLibCheck --declarationDir lib"
   },
   "bugs": {
     "url": "https://github.com/congeer/minigame/issues"

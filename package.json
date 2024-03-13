@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "lerna run build",
-    "types": "lerna run types",
-    "clean": "lerna run clean",
+    "build": "yarn workspaces run build",
+    "types": "yarn workspaces run types",
+    "clean": "rimraf packages/*/lib",
     "test": "jest",
     "one": "npm run clean && npm run build && npm run types",
     "publish": "lerna publish from-package --yes",
