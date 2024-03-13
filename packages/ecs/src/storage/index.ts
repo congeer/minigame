@@ -1,2 +1,4 @@
 export * from './resource';
-export * from './storages';
+export * from './sparse_set';
+export * from './table';
+export * from './storage';

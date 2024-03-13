@@ -14,6 +14,13 @@ export function isInstance(target: any, type: any) {
     return typeof target === 'object' && target instanceof type;
 }
 
+export function getClz(target: any) {
+    if (typeof target === 'object') {
+        return target.__proto__.constructor;
+    }
+    return target;
+}
+
 export const matchType = (target: any, type: any, msg?: string) => {
     if (!isType(target, type)) {
         throw new Error(msg ?? (target + " not match " + type.name))
@@ -136,22 +143,21 @@ export function inheritFunction<T>(options: DefineOptions<T>, parentType: any): 
 const typeList: any[] = [];
 const typeIdList: string[] = [];
 
-export function typeId(type: any) {
+export type TypeId = string;
+
+export function typeId(type: any): TypeId {
     if (typeof type === "object") {
-        type = type.__proto__;
-    } else if (typeof type === "function") {
-        type = type.prototype
+        type = type.__proto__.constructor;
     }
-    let id = "";
     const index = typeList.indexOf(type);
     if (index !== -1) {
-        id = typeIdList[index];
+        return typeIdList[index];
     } else {
-        id = nanoid();
+        const id = nanoid();
         typeList.push(type);
         typeIdList.push(id);
+        return id;
     }
-    return id;
 }
 
 export type Methods<T> = { [key: string]: (self: T, ...args: any) => any }

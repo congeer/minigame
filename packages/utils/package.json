@@ -1,5 +1,5 @@
 {
-  "name": "@minigame/ecs",
+  "name": "@minigame/utils",
   "version": "0.2.0",
   "homepage": "https://github.com/congeer/minigame#readme",
   "license": "MIT",
@@ -22,7 +22,6 @@
     "url": "https://github.com/congeer/minigame/issues"
   },
   "dependencies": {
-    "nanoid": "^5.0.4",
-    "@minigame/utils": "^0.2.0"
+    "nanoid": "^5.0.4"
   }
 }

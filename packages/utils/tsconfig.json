@@ -11,11 +11,11 @@
     "experimentalDecorators": true,
     "strict": true,
     "resolveJsonModule": true,
-    "types": ["@types/jest"],
+    "types": ["minigame-api-typings"],
     "lib": [
       "dom",
       "esnext"
     ]
   },
-  "include": ["src"],
+  "include": ["src", "test"],
 }
