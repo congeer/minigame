@@ -1,3 +1,5 @@
+import {Option, Some} from "@minigame/utils";
+
 export class ImmutableSparseSet<I, V> {
     #dense: V[] = [];
     #indices: I[] = [];
@@ -15,11 +17,12 @@ export class ImmutableSparseSet<I, V> {
         return this.#dense.length;
     }
 
-    get(index: I) {
-        const denseIndex = this.#sparse.get(index);
-        if (denseIndex !== undefined) {
-            return this.#dense[denseIndex];
-        }
+    get(index: I): Option<V> {
+        return Some(this.#sparse.get(index)).map(denseIndex => this.#dense[denseIndex]);
+    }
+
+    getUnchecked(index: I): V {
+        return this.#dense[this.#sparse.get(index)!];
     }
 
     contains(index: I) {

@@ -1,3 +1,4 @@
+import {None} from "@minigame/utils";
 import {Entities, Entity} from './entity';
 
 
@@ -19,11 +20,11 @@ test('get_reserved_and_invalid', () => {
     const entities = new Entities();
     const e = entities.reserveEntity();
     expect(entities.contains(e)).toBe(true);
-    expect(entities.get(e)).toBe(undefined);
+    expect(entities.get(e)).toBe(None);
     entities.flush(() => {
     })
     expect(entities.contains(e)).toBe(true);
-    expect(entities.get(e)).toBe(undefined);
+    expect(entities.get(e)).toBe(None);
 })
 
 test('entity_const', () => {

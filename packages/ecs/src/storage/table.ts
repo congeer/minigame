@@ -1,8 +1,9 @@
+import {None, Option, Some} from "@minigame/utils";
 import {Tick} from "../change_detection";
 import {ComponentId, ComponentInfo, Components, ComponentTicks} from "../component";
 import {Entity} from "../entity";
-import {TableBuilder, TableMoveResult} from "./table_inner";
 import {ImmutableSparseSet} from "./sparse_set_inner";
+import {TableBuilder, TableMoveResult} from "./table_inner";
 
 
 export type TableId = number;
@@ -80,11 +81,12 @@ export class Column {
     }
 
 
-    get(row: TableRow): [any, ComponentTicks] | undefined {
+    get(row: TableRow): Option<[any, ComponentTicks]> {
         const index = row;
         if (index < this.len()) {
-            return [this.data[index], new ComponentTicks(this.addedTicks[index], this.changedTicks[index])];
+            return Some([this.data[index], new ComponentTicks(this.addedTicks[index], this.changedTicks[index])]);
         }
+        return None
     }
 
     getData(row: TableRow) {
@@ -154,17 +156,18 @@ export class Table {
         return new Table(immutableSparseSet);
     }
 
-    swapRemove(row: TableRow) {
+    swapRemove(row: TableRow): Option<Entity> {
         this.columns.values().forEach(column => {
             column.swapRemove(row);
         });
         const isLast = row === this.entities.length - 1;
         if (isLast) {
             this.entities.pop();
+            return None;
         } else {
             const entity = this.entities[row];
             this.entities[row] = this.entities.pop()!;
-            return entity;
+            return Some(entity);
         }
     }
 
@@ -189,8 +192,8 @@ export class Table {
         for (let i = 0; i < columnsIter.length; i++) {
             const [componentId, column] = columnsIter[i];
             const newColumn = newTable.getColumn(componentId);
-            if (newColumn) {
-                newColumn.initializeFrom(column, row, newRow);
+            if (newColumn.isSome()) {
+                newColumn.unwrap().initializeFrom(column, row, newRow);
             } else {
                 column.swapRemoveAndForget(row);
             }
@@ -207,8 +210,8 @@ export class Table {
         for (let i = 0; i < columnsIter.length; i++) {
             const [componentId, column] = columnsIter[i];
             const newColumn = newTable.getColumn(componentId);
-            if (newColumn) {
-                newColumn.initializeFrom(column, row, newRow);
+            if (newColumn.isSome()) {
+                newColumn.unwrap().initializeFrom(column, row, newRow);
             } else {
                 column.swapRemove(row);
             }
@@ -225,15 +228,19 @@ export class Table {
         for (let i = 0; i < columnsIter.length; i++) {
             const [componentId, column] = columnsIter[i];
             const newColumn = newTable.getColumn(componentId);
-            if (newColumn) {
-                newColumn.initializeFrom(column, row, newRow);
+            if (newColumn.isSome()) {
+                newColumn.unwrap().initializeFrom(column, row, newRow);
             }
         }
         return TableMoveResult.new(newRow, isLast ? undefined : entity);
     }
 
-    getColumn(componentId: ComponentId) {
+    getColumn(componentId: ComponentId): Option<Column> {
         return this.columns.get(componentId);
+    }
+
+    getColumnUnchecked(componentId: ComponentId): Column {
+        return this.columns.getUnchecked(componentId);
     }
 
     hasColumn(componentId: ComponentId) {
@@ -306,7 +313,7 @@ export class Tables {
         }
         let table = TableBuilder.new();
         for (let i = 0; i < componentIds.length; i++) {
-            table.addColumn(components.getInfo(componentIds[i])!);
+            table.addColumn(components.getInfoUnchecked(componentIds[i]));
         }
         tables.push(table.build());
         let tableId = tables.length - 1;

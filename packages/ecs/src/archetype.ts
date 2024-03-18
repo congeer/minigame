@@ -1,10 +1,10 @@
+import {EMPTY_VALUE, None, Option, Some} from "@minigame/utils";
 import {AddBundle, ArchetypeSwapRemoveResult, ComponentStatus} from "./archetype_inner";
 import {BundleId} from "./bundle";
 import {ComponentId, StorageType} from "./component";
 import {Entity, EntityLocation} from "./entity";
 import {SparseSet, TableId, TableRow} from "./storage";
 import {ImmutableSparseSet} from "./storage/sparse_set_inner";
-import {EMPTY_VALUE} from "@minigame/utils";
 
 export type ArchetypeRow = number;
 
@@ -12,46 +12,34 @@ export type ArchetypeId = number;
 
 export class Edges {
     addBundle: AddBundle[] = [];
-    removeBundle: (ArchetypeId | undefined)[] = []
-    takeBundle: (ArchetypeId | undefined)[] = []
+    removeBundle: Option<ArchetypeId>[] = []
+    takeBundle: Option<ArchetypeId>[] = []
 
-    getAddBundle(bundleId: BundleId): ArchetypeId | undefined {
-        const internal = this.getAddBundleInternal(bundleId);
-        if (internal === undefined) {
-            return undefined;
-        }
-        return internal.archetypeId;
+    getAddBundle(bundleId: BundleId): Option<ArchetypeId> {
+        return this.getAddBundleInternal(bundleId).map(addBundle => addBundle.archetypeId);
     }
 
-    getAddBundleInternal(bundleId: BundleId): AddBundle | undefined {
-        return this.addBundle[bundleId];
+    getAddBundleInternal(bundleId: BundleId): Option<AddBundle> {
+        return Some(this.addBundle[bundleId]);
     }
 
     insertAddBundle(bundleId: BundleId, archetypeId: ArchetypeId, bundleStatus: ComponentStatus[]) {
         this.addBundle[bundleId] = new AddBundle(archetypeId, bundleStatus);
     }
 
-    getRemoveBundle(bundleId: BundleId): ArchetypeId | undefined {
-        const element = this.removeBundle[bundleId];
-        if (element === undefined) {
-            return undefined;
-        }
-        return element;
+    getRemoveBundle(bundleId: BundleId): Option<ArchetypeId> {
+        return this.removeBundle[bundleId];
     }
 
-    insertRemoveBundle(bundleId: BundleId, archetypeId: ArchetypeId | undefined) {
+    insertRemoveBundle(bundleId: BundleId, archetypeId: Option<ArchetypeId>) {
         this.removeBundle[bundleId] = archetypeId;
     }
 
-    getTakeBundle(bundleId: BundleId): ArchetypeId | undefined {
-        const element = this.takeBundle[bundleId];
-        if (element === undefined) {
-            return undefined;
-        }
-        return element;
+    getTakeBundle(bundleId: BundleId): Option<ArchetypeId> {
+        return this.takeBundle[bundleId];
     }
 
-    insertTakeBundle(bundleId: BundleId, archetypeId: ArchetypeId | undefined) {
+    insertTakeBundle(bundleId: BundleId, archetypeId: Option<ArchetypeId>) {
         this.takeBundle[bundleId] = archetypeId;
     }
 
@@ -137,7 +125,7 @@ export class Archetype {
     swapRemove(row: ArchetypeRow) {
         const isLast = row === this.entities.length - 1;
         const entity = this.entities.splice(row, 1)[0];
-        return new ArchetypeSwapRemoveResult(isLast ? undefined : this.entities[row].entity, entity.tableRow);
+        return new ArchetypeSwapRemoveResult(isLast ? None : Some(this.entities[row].entity), entity.tableRow);
     }
 
     len() {
@@ -152,20 +140,12 @@ export class Archetype {
         return this._components.contains(componentId);
     }
 
-    getStorageType(componentId: ComponentId) {
-        const info = this._components.get(componentId);
-        if (info === undefined) {
-            return undefined;
-        }
-        return info.storageType;
+    getStorageType(componentId: ComponentId): Option<StorageType> {
+        return this._components.get(componentId).map(info => info.storageType);
     }
 
-    getArchetypeComponentId(componentId: ComponentId) {
-        const info = this._components.get(componentId);
-        if (info === undefined) {
-            return undefined;
-        }
-        return info.archetypeComponentId;
+    getArchetypeComponentId(componentId: ComponentId): Option<ArchetypeComponentId> {
+        return this._components.get(componentId).map(info => info.archetypeComponentId);
     }
 
     clearEntities() {
@@ -227,12 +207,12 @@ export class Archetypes {
         return id;
     }
 
-    get(id: ArchetypeId) {
+    get(id: ArchetypeId): Archetype {
         return this.archetypes[id];
     }
 
     get2(a: ArchetypeId, b: ArchetypeId) {
-        return [this.get(a), this.get(b)];
+        return [this.archetypes[a], this.archetypes[b]];
     }
 
     iter() {

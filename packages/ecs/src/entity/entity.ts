@@ -1,5 +1,4 @@
-import {INVALID_VALUE} from "@minigame/utils";
-import {deepCopy} from "@minigame/utils";
+import {deepCopy, INVALID_VALUE, None, Option, Some} from "@minigame/utils";
 import {ArchetypeId, ArchetypeRow} from "../archetype";
 import {MetaInfo} from "../meta";
 import {EntityIndex, TableId, TableRow} from "../storage";
@@ -209,12 +208,12 @@ export class Entities {
         this.length = 0;
     }
 
-    get(entity: Entity) {
+    get(entity: Entity): Option<EntityLocation> {
         const meta = this.meta[entity.index];
         if (!meta || meta.generation !== entity.generation || meta.location.archetypeId === INVALID_VALUE) {
-            return undefined;
+            return None;
         }
-        return meta.location;
+        return Some(meta.location);
     }
 
 

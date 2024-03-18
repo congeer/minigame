@@ -1,3 +1,4 @@
+import {None, Option, Some} from "@minigame/utils";
 import {ArchetypeComponentId} from "../archetype";
 import {Tick} from "../change_detection";
 import {Ticks} from "../change_detection_inner";
@@ -29,27 +30,26 @@ export class ResourceData {
         return this.data;
     }
 
-    getTicks() {
-        if (this.isPresent()) {
-            return new ComponentTicks(this.addedTicks, this.changedTicks);
-        }
-    }
-
-    getWithTicks() {
+    getTicks():Option<ComponentTicks> {
         if (!this.isPresent()) {
-            return [];
+            return None;
         }
-        return [this.data, this.getTicks()]
+        return Some(new ComponentTicks(this.addedTicks, this.changedTicks));
     }
 
-    get(lastRun: Tick, thisRun: Tick) {
-        if (this.isPresent()) {
-            const [data, ticks] = this.getWithTicks();
-            return {
-                value: data,
-                ticks: Ticks.fromTickCells(ticks, lastRun, thisRun)
-            };
+    getWithTicks():Option<[any, ComponentTicks]> {
+        if (!this.isPresent()) {
+            return None;
         }
+        return Some([this.data, this.getTicks().unwrap()]);
+    }
+
+    get(lastRun: Tick, thisRun: Tick): Option<[any, Ticks]> {
+        if (!this.isPresent()) {
+            return None;
+        }
+        const [data, ticks] = this.getWithTicks().unwrap();
+        return Some([data, Ticks.fromTickCells(ticks, lastRun, thisRun)]);
     }
 
     insert(value: any, changeTick: Tick) {
@@ -64,13 +64,13 @@ export class ResourceData {
         this.changedTicks = changeTicks.changed;
     }
 
-    remove() {
+    remove(): Option<[any, ComponentTicks]> {
         if (!this.isPresent()) {
-            return undefined;
+            return None;
         }
         const res = this.data;
         this.data = undefined;
-        return [res, new ComponentTicks(this.addedTicks, this.changedTicks)]
+        return Some([res, new ComponentTicks(this.addedTicks, this.changedTicks)])
     }
 
     removeAndDrop() {
@@ -110,8 +110,8 @@ export class Resources {
 
     initializeWith(componentId: ComponentId, components: Components, f: () => ArchetypeComponentId) {
         return this.resources.getOrInsertWith(componentId, () => {
-            const componentInfo = components.getInfo(componentId);
-            return new ResourceData(undefined, componentInfo.name, f(), new Tick(0), new Tick(0));
+            const componentInfo = components.getInfo(componentId).unwrap();
+            return new ResourceData(void 0, componentInfo.name, f(), new Tick(0), new Tick(0));
         })
     }
 
@@ -123,7 +123,7 @@ export class Resources {
 
 }
 
-export class Resource extends MetaInfo{
+export class Resource extends MetaInfo {
 
     constructor() {
         super(Resource);

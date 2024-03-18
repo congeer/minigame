@@ -1,3 +1,4 @@
+import {None, Option, Some} from "@minigame/utils";
 import {Tick} from "../change_detection";
 import {ComponentId, ComponentInfo, ComponentTicks} from "../component";
 import {Entity} from "../entity";
@@ -44,57 +45,53 @@ export class ComponentSparseSet {
     }
 
     contains(entity: Entity) {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return false;
-        }
-        return this.entities[row] === entity;
-    }
-
-    get(entity: Entity) {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return;
-        }
-        return this.dense.getData(row);
-    }
-
-    getWithTicks(entity: Entity): [any, ComponentTicks] | undefined {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return;
-        }
-        return this.dense.get(row);
-    }
-
-    getAddedTick(entity: Entity) {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return;
-        }
-        return this.dense.getAddedTick(row);
-    }
-
-    getChangedTick(entity: Entity) {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return;
-        }
-        return this.dense.getChangedTick(row);
-    }
-
-    getTicks(entity: Entity) {
-        const row = this.sparse.get(entity.index);
-        if (row === undefined) {
-            return;
-        }
-        return this.dense.getTicks(row);
-    }
-
-    removeAndForget(entity: Entity) {
         const denseIndex = this.sparse.get(entity.index);
         if (denseIndex === undefined) {
-            return;
+            return false;
+        }
+        return this.entities[denseIndex] === entity;
+    }
+
+    get(entity: Entity): Option<any> {
+        return Some(this.sparse.get(entity.index)).map(row => this.dense.getData(row));
+    }
+
+    getWithTicks(entity: Entity): Option<[any, ComponentTicks]> {
+        const denseIndex = this.sparse.get(entity.index);
+        if (denseIndex === undefined) {
+            return None;
+        }
+        return Some([this.dense.getData(denseIndex), this.dense.getTicks(denseIndex)]);
+    }
+
+    getAddedTick(entity: Entity): Option<Tick> {
+        const denseIndex = this.sparse.get(entity.index);
+        if (denseIndex === undefined) {
+            return None;
+        }
+        return Some(this.dense.getAddedTick(denseIndex));
+    }
+
+    getChangedTick(entity: Entity): Option<Tick> {
+        const denseIndex = this.sparse.get(entity.index);
+        if (denseIndex === undefined) {
+            return None;
+        }
+        return Some(this.dense.getChangedTick(denseIndex));
+    }
+
+    getTicks(entity: Entity): Option<ComponentTicks> {
+        const denseIndex = this.sparse.get(entity.index);
+        if (denseIndex === undefined) {
+            return None;
+        }
+        return Some(this.dense.getTicks(denseIndex));
+    }
+
+    removeAndForget(entity: Entity): Option<any[]> {
+        const denseIndex = this.sparse.get(entity.index);
+        if (denseIndex === undefined) {
+            return None;
         }
         this.entities[denseIndex] = this.entities.pop()!;
         const isLast = denseIndex === this.dense.len() - 1;
@@ -103,7 +100,7 @@ export class ComponentSparseSet {
             const last = this.entities[denseIndex];
             this.sparse.set(last.index, denseIndex);
         }
-        return value;
+        return Some(value);
     }
 
     remove(entity: Entity) {
@@ -137,18 +134,24 @@ export class SparseSet<I, V> {
         return this.#dense.length;
     }
 
-    get(index: I): V | undefined {
+    get(index: I): Option<V> {
         const denseIndex = this.#sparse.get(index);
-        if (denseIndex !== undefined) {
-            return this.#dense[denseIndex];
+        if (denseIndex === undefined) {
+            return None;
         }
+        return Some(this.#dense[denseIndex]);
     }
 
-    set(index: I, value: V) {
+    getMust(index: I): V {
+        return this.#dense[this.#sparse.get(index)!];
+    }
+
+    set(index: I, value: V): this {
         const denseIndex = this.#sparse.get(index);
         if (denseIndex !== undefined) {
             this.#dense[denseIndex] = value;
         }
+        return this;
     }
 
     contains(index: I): boolean {
@@ -197,10 +200,10 @@ export class SparseSet<I, V> {
         return this.#dense.length === 0;
     }
 
-    remove(index: I) {
+    remove(index: I): Option<V> {
         const denseIndex = this.#sparse.get(index);
         if (denseIndex === undefined) {
-            return;
+            return None;
         }
         this.#sparse.delete(index);
         const isLast = denseIndex === this.#dense.length - 1;
@@ -211,7 +214,7 @@ export class SparseSet<I, V> {
             const last = this.#indices[denseIndex];
             this.#sparse.set(last, denseIndex);
         }
-        return value;
+        return Some(value);
     }
 
     clear() {
@@ -241,7 +244,7 @@ export class SparseSets {
         return this.sets.iter();
     }
 
-    get(id: ComponentId) {
+    get(id: ComponentId): Option<ComponentSparseSet> {
         return this.sets.get(id);
     }
 

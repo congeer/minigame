@@ -19,12 +19,12 @@ test("table", () => {
     const components = new Components();
     const storages = new Storages();
     const componentId = components.initComponent(typeId(W<TableRow>), storages);
-    const table = TableBuilder.new().addColumn(components.getInfo(componentId)).build();
+    const table = TableBuilder.new().addColumn(components.getInfo(componentId).unwrap()).build();
     const entities = Array.from({length: 200}, (_, i) => Entity.fromRaw(i));
     for (let entity of entities) {
         const row = table.allocate(entity);
         const value = new W(entity.index);
-        table.getColumn(componentId)!.initialize(row, value, new Tick(0));
+        table.getColumn(componentId).unwrap().initialize(row, value, new Tick(0));
     }
 
     expect(table.entityCount()).toBe(200);

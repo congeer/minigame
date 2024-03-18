@@ -1,7 +1,7 @@
+import {EMPTY_VALUE, Option} from "@minigame/utils";
 import {ArchetypeId} from "./archetype";
 import {Entity} from "./entity";
 import {TableRow} from "./storage";
-import {EMPTY_VALUE} from "@minigame/utils";
 
 export enum ComponentStatus {
     Added,
@@ -27,17 +27,17 @@ export class AddBundle implements BundleComponentStatus {
 }
 
 export class SpawnBundleStatus implements BundleComponentStatus {
-    getStatus(index: number): ComponentStatus {
+    getStatus(_: number): ComponentStatus {
         return ComponentStatus.Added;
     }
 }
 
 export class ArchetypeSwapRemoveResult {
 
-    swappedEntity?: Entity;
+    swappedEntity: Option<Entity>;
     tableRow: TableRow;
 
-    constructor(swappedEntity: Entity | undefined, tableRow: TableRow) {
+    constructor(swappedEntity: Option<Entity>, tableRow: TableRow) {
         this.swappedEntity = swappedEntity;
         this.tableRow = tableRow;
     }

@@ -1,3 +1,4 @@
+import {Option, Some} from "@minigame/utils";
 import {IBundle} from "./bundle";
 import {Tick} from "./change_detection";
 import {
@@ -19,7 +20,7 @@ export class Components {
     indices: Map<TypeId, ComponentId> = new Map();
     resourceIndices: Map<TypeId, ComponentId> = new Map();
 
-    initComponent(typeId: string, storages: Storages): ComponentId {
+    initComponent(typeId: TypeId, storages: Storages): ComponentId {
         const indices = this.indices;
         const components = this.components;
         let componentId = indices.get(typeId);
@@ -42,30 +43,31 @@ export class Components {
         return this.components.length === 0;
     }
 
-    getInfo(id: ComponentId) {
+    getInfo(id: ComponentId): Option<ComponentInfo> {
+        return Some(this.components[id]);
+    }
+
+    getInfoUnchecked(id: ComponentId): ComponentInfo {
         return this.components[id];
     }
 
-    getName(id: ComponentId) {
-        const info = this.getInfo(id);
-        if (info) {
-            return info.name;
-        }
+    getName(id: ComponentId): Option<string> {
+        return this.getInfo(id).map(info => info.name);
     }
 
-    getId(id: TypeId) {
-        return this.indices.get(id);
+    getId(id: TypeId): Option<number> {
+        return Some(this.indices.get(id));
     }
 
     componentId(component: Component) {
         return this.getId(typeId(component));
     }
 
-    getResourceId(typeId: TypeId) {
-        return this.resourceIndices.get(typeId);
+    getResourceId(typeId: TypeId): Option<number> {
+        return Some(this.resourceIndices.get(typeId));
     }
 
-    resourceId<T>(res: T) {
+    resourceId<T>(res: T): Option<number> {
         return this.getResourceId(typeId(res));
     }
 
@@ -112,14 +114,14 @@ export class Component extends MetaInfo implements IBundle {
     }
 
     getComponents(func: (storageType: StorageType, component: any) => any): void {
-        func(storageType(this), this);
+        func(storageType(this as any), this);
     }
 
     componentIds(components: Components, storages: Storages, ids: (componentId: number) => void): void {
         ids(components.initComponent(typeId(this), storages));
     }
 
-    fromComponents<T>(ctx: T, func: (t: T) => IBundle): IBundle {
+    fromComponents<T, U extends IBundle>(ctx: T, func: (t: T) => U): U {
         return func(ctx);
     }
 
@@ -142,7 +144,7 @@ export enum StorageType {
     SparseSet
 }
 
-export const storageType = (component: Component, storageType?: StorageType) => {
+export const storageType = <T extends Component>(component: new() => T, storageType?: StorageType) => {
     const clz = getClz(component);
     if (!storageType) {
         return clz.__storageType__ ?? StorageType.Table;

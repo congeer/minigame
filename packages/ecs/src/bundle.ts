@@ -1,4 +1,4 @@
-import {EMPTY_VALUE} from "@minigame/utils";
+import {EMPTY_VALUE, Option, Some} from "@minigame/utils";
 import {ArchetypeId, Archetypes} from "./archetype";
 import {BundleComponentStatus, ComponentStatus} from "./archetype_inner";
 import {BundleInserter, BundleSpawner, InsertBundleResult} from "./bundle_inner";
@@ -18,7 +18,7 @@ export const isBundle = (target: any) => {
 export interface IBundle {
     componentIds(components: Components, storages: Storages, ids: (componentId: ComponentId) => void): void;
 
-    fromComponents<T>(ctx: T, func: (t: T) => IBundle): IBundle;
+    fromComponents<T, U extends IBundle>(ctx: T, func: (t: T) => U): U;
 
     getComponents(func: (storageType: StorageType, component: any) => any): void;
 
@@ -30,7 +30,7 @@ export class Bundle extends MetaInfo implements IBundle {
         super(Bundle);
     }
 
-    fromComponents<T>(ctx: T, func: (t: T) => IBundle): IBundle {
+    fromComponents<T, U extends IBundle>(ctx: T, func: (t: T) => U): U {
         return func(ctx);
     }
 
@@ -71,7 +71,7 @@ export class Bundles {
         return this.bundleIds.get(typeId);
     }
 
-    initInfo(bundle: Bundle, components: Components, storages: Storages): BundleInfo {
+    initInfo<T extends Bundle>(bundle: T, components: Components, storages: Storages): BundleInfo {
         const bundleInfos = this.bundleInfos;
         let id = this.bundleIds.get(typeId(bundle));
         if (id === undefined) {
@@ -114,10 +114,10 @@ export class Bundles {
 const initDynamicBundle = (bundleInfos: BundleInfo[], components: Components, componentIds: ComponentId[]): [BundleId, StorageType[]] => {
     const storageTypes = componentIds.map((id) => {
         const info = components.getInfo(id);
-        if (info === undefined) {
+        if (info.isNone()) {
             throw new Error(`initDynamicInfo called with component id ${id} which doesn't exist in this world`);
         }
-        return info.storageType;
+        return info.unwrap().storageType;
     });
     const id = bundleInfos.length;
     const bundleInfo = new BundleInfo("<dynamic bundle>", components, componentIds, id);
@@ -160,22 +160,30 @@ export class BundleInfo {
                       components: Components,
                       storages: Storages,
                       archetypeId: ArchetypeId,
-                      changeTick: Tick) {
+                      changeTick: Tick): BundleInserter {
         const newArchetypeId = this.addBundleToArchetype(archetypes, storages, components, archetypeId);
         const archetypesPtr = archetypes.archetypes;
         if (newArchetypeId === archetypeId) {
             const archetype = archetypes.get(archetypeId);
             const tableId = archetype.tableId;
             return new BundleInserter(archetype, entities, this, storages.tables.get(tableId), storages.sparseSets, InsertBundleResult.sameArchetype(), archetypesPtr, changeTick)
+        } else {
+            const [archetype, newArchetype] = archetypes.get2(archetypeId, newArchetypeId);
+            const tableId = archetype.tableId;
+            if (tableId == newArchetype.tableId) {
+                return new BundleInserter(archetype, entities, this, storages.tables.get(tableId), storages.sparseSets, InsertBundleResult.newArchetypeSameTable(newArchetype), archetypesPtr, changeTick)
+            } else {
+                const [table, newTable] = storages.tables.get2(tableId, newArchetype.tableId);
+                return new BundleInserter(archetype, entities, this, table, storages.sparseSets, InsertBundleResult.newArchetypeNewTable(newArchetype, newTable), archetypesPtr, changeTick)
+            }
         }
-
     }
 
     getBundleSpawner(entities: Entities,
                      archetypes: Archetypes,
                      components: Components,
                      storages: Storages,
-                     changeTick: Tick) {
+                     changeTick: Tick): BundleSpawner {
         const newArchetypeId = this.addBundleToArchetype(archetypes, storages, components, EMPTY_VALUE);
         const archetype = archetypes.get(newArchetypeId);
         const table = storages.tables.get(archetype.tableId);
@@ -195,7 +203,7 @@ export class BundleInfo {
             const componentId = this.componentIds[bundleComponent];
             switch (storageType) {
                 case StorageType.Table:
-                    const column = table.getColumn(componentId)!;
+                    const column = table.getColumnUnchecked(componentId);
                     const status = bundleComponentStatus.getStatus(bundleComponent);
                     switch (status) {
                         case ComponentStatus.Added:
@@ -207,7 +215,7 @@ export class BundleInfo {
                     }
                     break;
                 case StorageType.SparseSet:
-                    const sparseSet = sparseSets.get(componentId)!;
+                    const sparseSet = sparseSets.get(componentId).unwrap();
                     sparseSet.insert(entity, component, changeTick);
                     break;
             }
@@ -215,9 +223,9 @@ export class BundleInfo {
         })
     }
 
-    addBundleToArchetype(archetypes: Archetypes, storages: Storages, components: Components, archetypeId: ArchetypeId) {
+    addBundleToArchetype(archetypes: Archetypes, storages: Storages, components: Components, archetypeId: ArchetypeId): Option<number> {
         const addBundleId = archetypes.get(archetypeId).edges.getAddBundle(this.id);
-        if (addBundleId !== undefined) {
+        if (addBundleId.isSome()) {
             return addBundleId;
         }
         const newTableComponents: ComponentId[] = [];
@@ -229,7 +237,7 @@ export class BundleInfo {
                 bundleStatus.push(ComponentStatus.Mutated);
             } else {
                 bundleStatus.push(ComponentStatus.Added);
-                const componentInfo = components.getInfo(componentId);
+                const componentInfo = components.getInfoUnchecked(componentId);
                 switch (componentInfo.storageType) {
                     case StorageType.Table:
                         newTableComponents.push(componentId);
@@ -243,7 +251,7 @@ export class BundleInfo {
         if (newTableComponents.length === 0 && newSparseSetComponents.length === 0) {
             const edges = currentArchetype.edges;
             edges.insertAddBundle(this.id, archetypeId, bundleStatus);
-            return archetypeId;
+            return Some(archetypeId);
         }
         let tableId: TableId = 0;
         let tableComponents: ComponentId[];
@@ -276,6 +284,6 @@ export class BundleInfo {
         }
         const newArchetypeId = archetypes.getIdOrInsert(tableId, tableComponents, sparseSetComponents);
         archetypes.get(newArchetypeId).edges.insertAddBundle(this.id, newArchetypeId, bundleStatus);
-        return newArchetypeId;
+        return Some(newArchetypeId);
     }
 }

@@ -1,3 +1,4 @@
+import {None, Some} from "@minigame/utils";
 import {component, ComponentDescriptor, ComponentInfo} from "../component";
 import {Entity} from "../entity";
 import {typeId} from "../inherit";
@@ -25,40 +26,40 @@ test("sparse_set", () => {
     set.insert(e2, new Foo(2));
     set.insert(e3, new Foo(3));
 
-    expect(set.get(e0)).toEqual(undefined);
-    expect(set.get(e1)).toEqual(new Foo(1));
-    expect(set.get(e2)).toEqual(new Foo(2));
-    expect(set.get(e3)).toEqual(new Foo(3));
-    expect(set.get(e4)).toEqual(undefined);
+    expect(set.get(e0)).toEqual(None);
+    expect(set.get(e1)).toEqual(Some(new Foo(1)));
+    expect(set.get(e2)).toEqual(Some(new Foo(2)));
+    expect(set.get(e3)).toEqual(Some(new Foo(3)));
+    expect(set.get(e4)).toEqual(None);
 
     {
         let iterResult = set.values();
         expect(iterResult).toEqual([new Foo(1), new Foo(2), new Foo(3)])
     }
 
-    expect(set.remove(e2)).toEqual(new Foo(2));
-    expect(set.remove(e2)).toEqual(undefined);
+    expect(set.remove(e2)).toEqual(Some(new Foo(2)));
+    expect(set.remove(e2)).toEqual(None);
 
-    expect(set.get(e0)).toEqual(undefined);
-    expect(set.get(e1)).toEqual(new Foo(1));
-    expect(set.get(e2)).toEqual(undefined);
-    expect(set.get(e3)).toEqual(new Foo(3));
-    expect(set.get(e4)).toEqual(undefined);
+    expect(set.get(e0)).toEqual(None);
+    expect(set.get(e1)).toEqual(Some(new Foo(1)));
+    expect(set.get(e2)).toEqual(None);
+    expect(set.get(e3)).toEqual(Some(new Foo(3)));
+    expect(set.get(e4)).toEqual(None);
 
-    expect(set.remove(e1)).toEqual(new Foo(1));
+    expect(set.remove(e1)).toEqual(Some(new Foo(1)));
 
-    expect(set.get(e0)).toEqual(undefined);
-    expect(set.get(e1)).toEqual(undefined);
-    expect(set.get(e2)).toEqual(undefined);
-    expect(set.get(e3)).toEqual(new Foo(3));
-    expect(set.get(e4)).toEqual(undefined);
+    expect(set.get(e0)).toEqual(None);
+    expect(set.get(e1)).toEqual(None);
+    expect(set.get(e2)).toEqual(None);
+    expect(set.get(e3)).toEqual(Some(new Foo(3)));
+    expect(set.get(e4)).toEqual(None);
 
     set.insert(e1, new Foo(10));
 
-    expect(set.get(e1)).toEqual(new Foo(10));
+    expect(set.get(e1)).toEqual(Some(new Foo(10)));
 
     set.set(e1, new Foo(11));
-    expect(set.get(e1)).toEqual(new Foo(11));
+    expect(set.get(e1)).toEqual(Some(new Foo(11)));
 });
 
 

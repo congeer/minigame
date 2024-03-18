@@ -40,22 +40,23 @@ export class BundleInserter {
 
     private newArchetypeSameTable(location: EntityLocation, entity: Entity, bundle: Bundle) {
         const result = this.archetype.swapRemove(location.archetypeRow);
-        let swappedEntity = result.swappedEntity;
-        if (swappedEntity) {
-            const swappedLocation = this.entities.get(swappedEntity);
-            this.entities.set(
-                swappedEntity.index,
-                new EntityLocation(
-                    swappedLocation.archetypeId,
-                    swappedLocation.archetypeRow,
-                    swappedLocation.tableId,
-                    swappedLocation.tableRow,
+        result.swappedEntity.match({
+            some: swappedEntity => {
+                const swappedLocation = this.entities.get(swappedEntity).unwrap();
+                this.entities.set(
+                    swappedEntity.index,
+                    new EntityLocation(
+                        swappedLocation.archetypeId,
+                        swappedLocation.archetypeRow,
+                        swappedLocation.tableId,
+                        swappedLocation.tableRow,
+                    )
                 )
-            )
-        }
+            }
+        })
         const newLocation = this.result.newArchetype!.allocate(entity, result.tableRow);
         this.entities.set(entity.index, newLocation);
-        const addBundle = this.result.newArchetype!.edges.getAddBundleInternal(this.bundleInfo.id)!;
+        const addBundle = this.result.newArchetype!.edges.getAddBundleInternal(this.bundleInfo.id).unwrap();
         this.bundleInfo.writeComponents(
             this.table,
             this.sparseSets,
@@ -69,7 +70,7 @@ export class BundleInserter {
     }
 
     private sameArchetype(entity: Entity, location: EntityLocation, bundle: Bundle) {
-        const addBundle = this.archetype.edges.getAddBundleInternal(this.bundleInfo.id)!
+        const addBundle = this.archetype.edges.getAddBundleInternal(this.bundleInfo.id).unwrap();
         this.bundleInfo.writeComponents(
             this.table,
             this.sparseSets,
@@ -84,26 +85,27 @@ export class BundleInserter {
 
     private newArchetypeNewTable(entity: Entity, location: EntityLocation, bundle: Bundle) {
         const result = this.archetype.swapRemove(location.archetypeRow);
-        let swappedEntity = result.swappedEntity;
-        if (swappedEntity) {
-            const swappedLocation = this.entities.get(swappedEntity);
-            this.entities.set(
-                swappedEntity.index,
-                new EntityLocation(
-                    swappedLocation.archetypeId,
-                    swappedLocation.archetypeRow,
-                    swappedLocation.tableId,
-                    swappedLocation.tableRow,
+        result.swappedEntity.match({
+            some: swappedEntity => {
+                const swappedLocation = this.entities.get(swappedEntity).unwrap();
+                this.entities.set(
+                    swappedEntity.index,
+                    new EntityLocation(
+                        swappedLocation.archetypeId,
+                        swappedLocation.archetypeRow,
+                        swappedLocation.tableId,
+                        swappedLocation.tableRow,
+                    )
                 )
-            )
-        }
+            }
+        })
         const moveResult = this.table.moveToSuperset(result.tableRow, this.result.newTable!);
         const newLocation = this.result.newArchetype!.allocate(entity, moveResult.newRow);
         this.entities.set(entity.index, newLocation);
 
         const swapEntity = moveResult.swappedEntity;
         if (swapEntity) {
-            const swappedLocation = this.entities.get(swapEntity);
+            const swappedLocation = this.entities.get(swapEntity).unwrap();
 
             const swappedArchetypeFn = (): Archetype => {
                 if (this.archetype.id === swappedLocation.archetypeId) {
@@ -126,7 +128,7 @@ export class BundleInserter {
             )
             swappedArchetype.setEntityTableRow(swappedLocation.archetypeRow, result.tableRow);
         }
-        const addBundle = this.result.newArchetype!.edges.getAddBundleInternal(this.bundleInfo.id)!;
+        const addBundle = this.result.newArchetype!.edges.getAddBundleInternal(this.bundleInfo.id).unwrap();
         this.bundleInfo.writeComponents(
             this.table,
             this.sparseSets,
@@ -170,14 +172,6 @@ export class InsertBundleResult {
     }
 }
 
-//pub(crate) struct BundleSpawner<'a, 'b> {
-//     pub(crate) archetype: &'a mut Archetype,
-//     pub(crate) entities: &'a mut Entities,
-//     bundle_info: &'b BundleInfo,
-//     table: &'a mut Table,
-//     sparse_sets: &'a mut SparseSets,
-//     change_tick: Tick,
-// }
 export class BundleSpawner {
 
     archetype: Archetype;
