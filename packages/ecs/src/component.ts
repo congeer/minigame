@@ -108,6 +108,8 @@ export const isComponent = (target: Component) => {
     return isInstance(target, Component);
 }
 
+
+
 export class Component extends MetaInfo implements IBundle {
     constructor() {
         super(Component);

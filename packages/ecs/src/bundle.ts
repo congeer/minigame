@@ -1,4 +1,4 @@
-import {EMPTY_VALUE, Option, Some} from "@minigame/utils";
+import {EMPTY_VALUE} from "@minigame/utils";
 import {ArchetypeId, Archetypes} from "./archetype";
 import {BundleComponentStatus, ComponentStatus} from "./archetype_inner";
 import {BundleInserter, BundleSpawner, InsertBundleResult} from "./bundle_inner";
@@ -10,10 +10,6 @@ import {MetaInfo} from "./meta";
 import {SparseSets, Storages, Table, TableId, TableRow} from "./storage";
 
 export type BundleId = number;
-
-export const isBundle = (target: any) => {
-    return isInstance(target, Bundle);
-}
 
 export interface IBundle {
     componentIds(components: Components, storages: Storages, ids: (componentId: ComponentId) => void): void;
@@ -47,14 +43,22 @@ export class Bundle extends MetaInfo implements IBundle {
     }
 }
 
-export const bundle = function (target: any): typeof target {
-    return inherit(target, Bundle);
+export namespace Bundle {
+
+    export const isBundle = (target: any) => {
+        return isInstance(target, Bundle);
+    }
+
+    export function defineBundle<B>(
+        options: DefineOptions<B>
+    ): Creator<B> {
+        return inheritFunction(options, Bundle);
+    }
+
 }
 
-export function defineBundle<B>(
-    options: DefineOptions<B>
-): Creator<B> {
-    return inheritFunction(options, Bundle);
+export const bundle = function (target: any): typeof target {
+    return inherit(target, Bundle);
 }
 
 export class Bundles {
@@ -143,7 +147,7 @@ export class BundleInfo {
                     seen.add(id);
                 }
             }
-            const names = dups.map(id => components.getInfo(id).name).join(", ");
+            const names = dups.map(id => components.getInfoUnchecked(id).name).join(", ");
             throw new Error(`Bundle ${bundleTypeName} has duplicate components: ${names}`);
         }
 
@@ -223,10 +227,10 @@ export class BundleInfo {
         })
     }
 
-    addBundleToArchetype(archetypes: Archetypes, storages: Storages, components: Components, archetypeId: ArchetypeId): Option<number> {
+    addBundleToArchetype(archetypes: Archetypes, storages: Storages, components: Components, archetypeId: ArchetypeId): ArchetypeId {
         const addBundleId = archetypes.get(archetypeId).edges.getAddBundle(this.id);
         if (addBundleId.isSome()) {
-            return addBundleId;
+            return addBundleId.unwrap();
         }
         const newTableComponents: ComponentId[] = [];
         const newSparseSetComponents: ComponentId[] = [];
@@ -251,7 +255,7 @@ export class BundleInfo {
         if (newTableComponents.length === 0 && newSparseSetComponents.length === 0) {
             const edges = currentArchetype.edges;
             edges.insertAddBundle(this.id, archetypeId, bundleStatus);
-            return Some(archetypeId);
+            return archetypeId;
         }
         let tableId: TableId = 0;
         let tableComponents: ComponentId[];
@@ -284,6 +288,6 @@ export class BundleInfo {
         }
         const newArchetypeId = archetypes.getIdOrInsert(tableId, tableComponents, sparseSetComponents);
         archetypes.get(newArchetypeId).edges.insertAddBundle(this.id, newArchetypeId, bundleStatus);
-        return Some(newArchetypeId);
+        return newArchetypeId;
     }
 }

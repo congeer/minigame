@@ -5,3 +5,7 @@ export * from './meta';
 export * from './inherit';
 export * from './world';
 export * from './commands'
+export * from './schedule'
+export * from './bundle'
+export * from './component'
+export * from './change_detection'
