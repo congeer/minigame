@@ -1,3 +1,4 @@
+import { logger } from '@minigame/utils';
 import { Constructor, derive, HashMap, HashSet, Option, RustIter } from 'rustable';
 import { Tick } from '../change_detection/tick';
 import { Components } from '../component/collections';
@@ -69,7 +70,7 @@ export class Schedules {
     for (let id of this.iterIgnoredAmbiguities()) {
       message += components.getName(id).unwrap() + '\n';
     }
-    console.log(message);
+    logger.info(message);
   }
 
   addSystems<T extends object>(label: T, system: any) {

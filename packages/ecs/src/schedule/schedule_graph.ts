@@ -21,7 +21,7 @@ import { Components } from '../component/collections';
 import { ComponentId } from '../component/types';
 import { World } from '../world/base';
 
-import { FixedBitSet } from '@minigame/utils';
+import { FixedBitSet, logger } from '@minigame/utils';
 import { System } from '../system/base';
 import { IntoSystem } from '../system/into';
 import { ScheduleSystem } from '../system/schedule_system';
@@ -869,7 +869,7 @@ export class ScheduleGraph {
     const message = this.getHierarchyConflictsErrorMessage(transitiveEdges);
     switch (this.__settings.hierarchyDetection) {
       case LogLevel.Warn:
-        console.warn(`Schedule ${scheduleLabel.key()} has redundant edges:\n ${message}`);
+        logger.warn(`Schedule ${scheduleLabel.key()} has redundant edges:\n ${message}`);
         return Ok(void 0);
       case LogLevel.Error:
         return Err(ScheduleBuildError.HierarchyRedundancy(message));
@@ -1005,7 +1005,7 @@ export class ScheduleGraph {
     const message = this.getConflictsErrorMessage(conflicts, components);
     switch (this.__settings.ambiguityDetection) {
       case LogLevel.Warn:
-        console.warn(`Schedule ${scheduleLabel.key()} has ambiguities.\n${message}`);
+        logger.warn(`Schedule ${scheduleLabel.key()} has ambiguities.\n${message}`);
         return Ok(void 0);
       case LogLevel.Error:
         return Err(ScheduleBuildError.Ambiguity(message));

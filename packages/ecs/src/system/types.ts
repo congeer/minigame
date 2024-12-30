@@ -1,3 +1,4 @@
+import { logger } from '@minigame/utils';
 import { Tick } from '../change_detection/tick';
 import { Access } from '../query/access';
 
@@ -49,6 +50,6 @@ export class SystemMeta {
     if (this.paramWarnPolicy === ParamWarnPolicy.Never) {
       return;
     }
-    console.warn(`${name} did not run because it requested inaccessible system parameter ${paramName}`);
+    logger.warn(`${name} did not run because it requested inaccessible system parameter ${paramName}`);
   }
 }

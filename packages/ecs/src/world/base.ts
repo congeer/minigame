@@ -1,3 +1,4 @@
+import { logger } from '@minigame/utils';
 import { Constructor, Err, implTrait, Mut, None, Ok, Option, Result, Some, typeId } from 'rustable';
 import { Archetype } from '../archetype/base';
 import { Archetypes } from '../archetype/collections';
@@ -333,7 +334,7 @@ export class World {
       },
       Err: () => {
         if (logWarning) {
-          console.warn(`error: ${caller}: Could not despawn entity ${entity}`);
+          logger.warn(`error: ${caller}: Could not despawn entity ${entity}`);
         }
         return false;
       },
@@ -535,7 +536,7 @@ export class World {
     const value = f(this, schedule.unwrap());
     const old = this.resource(Schedules).insert(schedule.unwrap());
     if (old.isSome()) {
-      console.warn(
+      logger.warn(
         `Schedule ${label} was inserted during a call to World.schedule_scope its value has been overwritten`,
       );
     }

@@ -1,4 +1,4 @@
-import { INVALID_VALUE } from '@minigame/utils';
+import { INVALID_VALUE, logger } from '@minigame/utils';
 import { Mut, None, Option, range, Some, Vec } from 'rustable';
 import { Entity } from './base';
 import { EntityLocation } from './location';
@@ -117,7 +117,7 @@ export class Entities {
     }
     meta.generation += 1;
     if (meta.generation === 1) {
-      console.warn('Entity(' + entity.index + ') generation wrapped on Entities::free, aliasing may occur');
+      logger.warn('Entity(' + entity.index + ') generation wrapped on Entities::free, aliasing may occur');
     }
     const loc = meta.location;
     meta.location = EntityMeta.EMPTY.clone().location;
