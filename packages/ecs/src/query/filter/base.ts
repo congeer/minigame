@@ -1,5 +1,5 @@
-import { trait } from 'rustable';
-import { Entity } from '../../entity';
+import { implTrait, trait } from 'rustable';
+import { Entity } from '../../entity/base';
 import { TableRow } from '../../storage/table/types';
 import { WorldQuery } from '../world_query';
 
@@ -21,4 +21,15 @@ export class QueryFilter<Item = any, Fetch = any, State = any> extends WorldQuer
   filterFetch(_fetch: Fetch, _entity: Entity, _tableRow: TableRow): boolean {
     throw new Error('Not implemented');
   }
+}
+
+implTrait(Array<QueryFilter>, QueryFilter, {
+  filterFetch(_fetch: any, _entity: Entity, _tableRow: TableRow): boolean {
+    return this.every((f) => f.filterFetch(_fetch, _entity, _tableRow));
+  },
+});
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Array<T> extends QueryFilter {}
 }

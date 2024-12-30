@@ -31,7 +31,7 @@ export class ResourceData {
     return !this.__data.isEmpty();
   }
 
-  getId(): ArchetypeComponentId {
+  get id(): ArchetypeComponentId {
     return this.__id;
   }
 

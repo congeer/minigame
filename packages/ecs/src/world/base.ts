@@ -475,7 +475,7 @@ export class World {
     return new WorldCell(this).getResource(resource);
   }
 
-  protected initializeResourceInternal(componentId: ComponentId): ResourceData {
+  initializeResourceInternal(componentId: ComponentId): ResourceData {
     const archetypes = this.archetypes;
     return this.storages.resources.initializeWith(componentId, this.components, () => {
       return archetypes.newArchetypeComponentId();

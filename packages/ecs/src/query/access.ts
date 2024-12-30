@@ -1,5 +1,5 @@
 import { FixedBitSet } from '@minigame/utils';
-import { Clone, derive, EnumInstance, Enums, Eq } from 'rustable';
+import { Clone, derive, EnumInstance, Enums, Eq, Vec } from 'rustable';
 import { ComponentId } from '../component/types';
 
 /**
@@ -671,7 +671,7 @@ export class FilteredAccess extends Access {
    * For example: `Or<(With<A>, With<B>)>`.
    * Filters like `(With<A>, Or<(With<B>, Without<C>)>` are expanded into `Or<((With<A>, With<B>), (With<A>, Without<C>))>`.
    */
-  filterSets: AccessFilters[] = [new AccessFilters()];
+  filterSets: Vec<AccessFilters> = Vec.from([new AccessFilters()]);
 
   /**
    * The components that are required.
@@ -699,7 +699,7 @@ export class FilteredAccess extends Access {
    */
   static matchesNothing(): FilteredAccess {
     const access = new FilteredAccess();
-    access.filterSets = [];
+    access.filterSets = Vec.new();
     return access;
   }
 
@@ -774,21 +774,14 @@ export class FilteredAccess extends Access {
    * we can simply append to the array.
    */
   appendOr(other: FilteredAccess): void {
-    this.filterSets.push(
-      ...other.filterSets.map((f) => {
-        const newFilter = new AccessFilters();
-        newFilter.with = f.with.clone();
-        newFilter.without = f.without.clone();
-        return newFilter;
-      }),
-    );
+    this.filterSets.extend(other.filterSets);
   }
 
   /**
    * Adds all of the accesses from other.
    */
   extendAccess(other: FilteredAccess): void {
-    this.extend(other);
+    super.extend(other);
   }
 
   /**
@@ -809,7 +802,9 @@ export class FilteredAccess extends Access {
     // guarantee that queries are disjoint.
     // Since the `filter_sets` array represents a Disjunctive Normal Form formula ("ORs of ANDs"),
     // we need to make sure that each filter set (ANDs) rule out every filter set from the `other` instance.
-    return this.filterSets.every((filter) => other.filterSets.every((otherFilter) => filter.isRuledOutBy(otherFilter)));
+    return this.filterSets
+      .iter()
+      .all((filter) => other.filterSets.iter().all((otherFilter) => filter.isRuledOutBy(otherFilter)));
   }
 
   /**
@@ -837,7 +832,7 @@ export class FilteredAccess extends Access {
 
     // We can avoid allocating a new array of bitsets if other contains just a single set of filters:
     // in this case we can short-circuit by performing an in-place union for each bitset.
-    if (other.filterSets.length === 1) {
+    if (other.filterSets.len() === 1) {
       for (const filter of this.filterSets) {
         filter.with.unionWith(other.filterSets[0].with);
         filter.without.unionWith(other.filterSets[0].without);
@@ -845,7 +840,7 @@ export class FilteredAccess extends Access {
       return;
     }
 
-    const newFilters: AccessFilters[] = [];
+    const newFilters = Vec.new<AccessFilters>();
     for (const filter of this.filterSets) {
       for (const otherFilter of other.filterSets) {
         const newFilter = new AccessFilters();
@@ -870,24 +865,14 @@ export class FilteredAccess extends Access {
    * Returns an iterator over the indices of the elements that this access filters for.
    */
   withFilters(): Iterable<number> {
-    return this.filterSets.reduce((acc, filter) => {
-      for (const index of filter.with.ones()) {
-        acc.add(index);
-      }
-      return acc;
-    }, new Set<number>());
+    return this.filterSets.iter().flatMap((f) => f.with.ones());
   }
 
   /**
    * Returns an iterator over the indices of the elements that this access filters out.
    */
   withoutFilters(): Iterable<number> {
-    return this.filterSets.reduce((acc, filter) => {
-      for (const index of filter.without.ones()) {
-        acc.add(index);
-      }
-      return acc;
-    }, new Set<number>());
+    return this.filterSets.iter().flatMap((f) => f.without.ones());
   }
 
   /**
@@ -896,7 +881,7 @@ export class FilteredAccess extends Access {
   clear(): void {
     super.clear();
     this.required.clear();
-    this.filterSets = [new AccessFilters()];
+    this.filterSets = Vec.from([new AccessFilters()]);
   }
 }
 

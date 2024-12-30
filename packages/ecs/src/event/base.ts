@@ -4,7 +4,7 @@ import { Traversal } from '../traversal';
 
 @trait
 export class Event extends Component {
-  traversal?: Traversal<this>;
+  traversal?: Traversal;
   autoPropagate?: boolean;
 }
 

@@ -25,14 +25,14 @@ import { Entity } from './entity/base';
  */
 
 @trait
-export class Traversal<D> {
-  traverse(_item: any, _data: D): Option<Entity> {
+export class Traversal {
+  static traverse<D>(_item: any, _data: D): Option<Entity> {
     throw new Error('Not implemented');
   }
 }
 
-export class EmptyTraversal implements Traversal<any> {
-  traverse(_item: any, _data: any): Option<Entity> {
+export class EmptyTraversal implements Traversal {
+  static traverse(_item: any, _data: any): Option<Entity> {
     return None;
   }
 }

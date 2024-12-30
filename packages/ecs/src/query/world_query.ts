@@ -1,4 +1,4 @@
-import { Mut, Option, trait } from 'rustable';
+import { implTrait, Mut, None, Option, Some, trait } from 'rustable';
 import { Archetype } from '../archetype/base';
 import { Tick } from '../change_detection/tick';
 import { Components } from '../component/collections';
@@ -92,4 +92,50 @@ export class WorldQuery<Item = any, Fetch = any, State = any> {
   matchesComponentSet(_state: State, _setContainsId: (componentId: ComponentId) => boolean): boolean {
     throw new Error('Not implemented');
   }
+}
+
+implTrait(Array<WorldQuery>, WorldQuery, {
+  shrink(item: any): any {
+    return this.map((q) => q.shrink(item));
+  },
+  shrinkFetch(fetch: any): any {
+    return this.map((q) => q.shrinkFetch(fetch));
+  },
+  initFetch(world: WorldCell, state: any, lastRun: Tick, thisRun: Tick): any {
+    return this.map((q) => q.initFetch(world, state, lastRun, thisRun));
+  },
+  setArchetype(fetch: any, state: any, archetype: Archetype, table: Table): void {
+    this.forEach((q) => q.setArchetype(fetch, state, archetype, table));
+  },
+  setTable(fetch: any, state: any, table: Table): void {
+    this.forEach((q) => q.setTable(fetch, state, table));
+  },
+  setAccess(state: any, access: FilteredAccess): void {
+    this.forEach((q) => q.setAccess(state, access));
+  },
+  fetch(fetch: any, entity: Entity, tableRow: TableRow): any {
+    return this.map((q) => q.fetch(fetch, entity, tableRow));
+  },
+  updateComponentAccess(state: any, access: Mut<FilteredAccess>): void {
+    this.forEach((q) => q.updateComponentAccess(state, access));
+  },
+  getState(components: Components): Option<any> {
+    const ret = [];
+    for (const q of this) {
+      const state = q.getState(components);
+      if (state.isNone()) {
+        return None;
+      }
+      ret.push(state.unwrap());
+    }
+    return Some(ret);
+  },
+  matchesComponentSet(state: any, setContainsId: (componentId: ComponentId) => boolean): boolean {
+    return this.some((q) => q.matchesComponentSet(state, setContainsId));
+  },
+});
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface Array<T> extends WorldQuery {}
 }
