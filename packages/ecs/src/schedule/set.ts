@@ -1,57 +1,61 @@
-import {None, Option} from "@minigame/utils";
-import {inherit, isInstance, TypeId} from "../inherit";
-import {MetaInfo} from "../meta";
-import {IntoSystemSetConfigs, SystemSetConfigs} from "./config";
+import { TraitValid } from '@minigame/utils';
+import { Eq, implTrait, None, Option, Some, trait, typeId, TypeId } from 'rustable';
 
-export class ScheduleLabel extends MetaInfo {
-    constructor() {
-        super(ScheduleLabel);
-    }
+@trait
+export class ScheduleLabel {}
 
+@trait
+export class SystemSet {
+  systemType(): Option<TypeId> {
+    return None;
+  }
+
+  isAnonymous(): boolean {
+    return false;
+  }
 }
 
-export const scheduleLabel = function (target: any): typeof target {
-    return inherit(target, ScheduleLabel)
+export class SystemTypeSet {
+  constructor(public data: any) {}
 }
 
-export const isScheduleLabel = (target: any) => {
-    return isInstance(target, ScheduleLabel);
+implTrait(SystemTypeSet, Eq, {
+  eq(this: SystemTypeSet, _other: SystemTypeSet): boolean {
+    return true;
+  },
+});
+
+export interface SystemTypeSet extends SystemSet {}
+
+implTrait(SystemTypeSet, SystemSet, {
+  systemType(): Option<TypeId> {
+    return Some(typeId(this.data));
+  },
+});
+
+export class AnonymousSet {
+  constructor(public id: number) {}
 }
 
-export class SystemSet extends MetaInfo implements IntoSystemSetConfigs {
+export interface AnonymousSet extends SystemSet {}
 
-    name(): string {
-        return "";
-    }
+implTrait(AnonymousSet, SystemSet, {
+  isAnonymous(): boolean {
+    return true;
+  },
+});
 
-    intoConfigs(): SystemSetConfigs {
-        return SystemSetConfigs.newSet(this);
-    }
-
-    constructor() {
-        super(SystemSet);
-    }
-
-    systemType(): Option<TypeId> {
-        return None;
-    }
-
-    isAnonymous(): boolean {
-        return false;
-    }
-
-
+@trait
+export class IntoSystemSet extends TraitValid {
+  intoSystemSet(): SystemSet {
+    throw new Error('Method not implemented.');
+  }
 }
 
-export class AnonymousSet extends SystemSet {
-    _id: number;
+export interface SystemSet extends IntoSystemSet {}
 
-    constructor(id: number) {
-        super();
-        this._id = id;
-    }
-
-    isAnonymous(): boolean {
-        return true;
-    }
-}
+implTrait(SystemSet, IntoSystemSet, {
+  intoSystemSet(this: SystemSet): SystemSet {
+    return this;
+  },
+});

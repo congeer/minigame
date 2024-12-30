@@ -1,0 +1,359 @@
+import { HashSet, None, Option, RustIter, Some, useTrait, Vec } from 'rustable';
+import { Archetypes } from '../archetype/collections';
+import { ArchetypeId, BundleComponentStatus, ComponentStatus } from '../archetype/types';
+import { Tick } from '../change_detection/tick';
+import { Components } from '../component/collections';
+import { RequiredComponentConstructor, RequiredComponents } from '../component/required_components';
+import { ComponentId, StorageType } from '../component/types';
+import { Entity } from '../entity/base';
+import { Observers } from '../observer/observers';
+import { SparseSets } from '../storage/sparse_set';
+import { Storages } from '../storage/storages';
+import { Table } from '../storage/table/table';
+import { TableId, TableRow } from '../storage/table/types';
+import { DynamicBundle } from './base';
+import { BundleId, InsertMode } from './types';
+
+export class BundleInfo {
+  constructor(
+    public id: BundleId,
+    public componentIds: Vec<ComponentId>,
+    public requiredComponents: Vec<RequiredComponentConstructor>,
+    public explicitComponentsLen: number,
+  ) {}
+
+  static new(bundleTypeName: string, components: Components, componentIds: Vec<ComponentId>, id: BundleId) {
+    const deduped = componentIds.iter().sort().dedup().collect();
+
+    if (deduped.length !== componentIds.len()) {
+      const seen = new HashSet();
+      const dups = Vec.new<ComponentId>();
+      for (let id of componentIds) {
+        if (!seen.insert(id)) {
+          dups.push(id);
+        }
+      }
+      const names = dups
+        .iter()
+        .map((id) => components.getInfoUnchecked(id).name)
+        .collect()
+        .join(', ');
+      throw new Error(`Bundle ${bundleTypeName} has duplicate components: ${names}`);
+    }
+    let explicitComponentsLen = componentIds.len();
+    let requiredComponents = new RequiredComponents();
+    for (const componentId of componentIds) {
+      const info = components.getInfoUnchecked(componentId);
+      requiredComponents.merge(info.requiredComponents);
+    }
+    requiredComponents.removeExplicitComponents(componentIds);
+    const requiredComponentConstructors = requiredComponents.components
+      .iter()
+      .map(([componentId, v]) => {
+        componentIds.push(componentId);
+        return v.__constructor;
+      })
+      .collectInto((value) => Vec.from(value));
+
+    return new BundleInfo(id, componentIds, requiredComponentConstructors, explicitComponentsLen);
+  }
+
+  explicitComponentIds(): ComponentId[] {
+    return this.componentIds.slice(0, this.explicitComponentsLen);
+  }
+
+  requiredComponentIds(): ComponentId[] {
+    return this.componentIds.slice(this.explicitComponentsLen);
+  }
+
+  contributedComponents(): ComponentId[] {
+    return this.componentIds.asSlice();
+  }
+
+  iterExplicitComponents(): RustIter<ComponentId> {
+    return this.explicitComponentIds().iter().cloned();
+  }
+
+  iterContributedComponents(): RustIter<ComponentId> {
+    return this.componentIds.iter().cloned();
+  }
+
+  iterRequiredComponents(): RustIter<ComponentId> {
+    return this.requiredComponentIds().iter().cloned();
+  }
+
+  writeComponents<T extends object, S extends BundleComponentStatus>(
+    table: Table,
+    sparseSets: SparseSets,
+    bundleComponentStatus: S,
+    requiredComponents: Iterable<RequiredComponentConstructor>,
+    entity: Entity,
+    tableRow: TableRow,
+    changeTick: Tick,
+    bundle: T,
+    insertMode: InsertMode,
+    caller?: string,
+  ): void {
+    let bundleComponent = 0;
+    useTrait(bundle, DynamicBundle).getComponents((storageType, componentPtr) => {
+      const componentId = this.componentIds[bundleComponent];
+      switch (storageType) {
+        case StorageType.Table: {
+          const status = bundleComponentStatus.getStatus(bundleComponent);
+          const column = table.getColumnUnchecked(componentId)!;
+          switch (status) {
+            case ComponentStatus.Added:
+              column.initialize(tableRow, componentPtr, changeTick, caller);
+              break;
+            case ComponentStatus.Existing:
+              if (insertMode === InsertMode.Replace) {
+                column.replace(tableRow, componentPtr, changeTick, caller);
+              } else if (insertMode === InsertMode.Keep) {
+                const dropFn = table.getDropFor(componentId);
+                dropFn.map((fn) => fn(componentPtr));
+              }
+              break;
+          }
+          break;
+        }
+        case StorageType.SparseSet: {
+          const sparseSet = sparseSets.get(componentId).unwrap();
+          sparseSet.insert(entity, componentPtr, changeTick, caller);
+          break;
+        }
+      }
+      bundleComponent++;
+    });
+
+    for (const requiredComponent of requiredComponents) {
+      requiredComponent(table, sparseSets, changeTick, tableRow, entity, caller);
+    }
+  }
+
+  static initializeRequiredComponent(
+    table: Table,
+    sparseSets: SparseSets,
+    changeTick: Tick,
+    tableRow: TableRow,
+    entity: Entity,
+    componentId: ComponentId,
+    storageType: StorageType,
+    componentPtr: any,
+    caller?: string,
+  ): void {
+    switch (storageType) {
+      case StorageType.Table: {
+        const column = table.getColumnUnchecked(componentId)!;
+        column.initialize(tableRow, componentPtr, changeTick, caller);
+        break;
+      }
+      case StorageType.SparseSet: {
+        const sparseSet = sparseSets.get(componentId).unwrap();
+        sparseSet.insert(entity, componentPtr, changeTick, caller);
+        break;
+      }
+    }
+  }
+
+  public insertBundleIntoArchetype(
+    archetypes: Archetypes,
+    storages: Storages,
+    components: Components,
+    observers: Observers,
+    archetypeId: ArchetypeId,
+  ): ArchetypeId {
+    const archetype = archetypes.get(archetypeId).unwrap();
+    const existingArchetypeId = archetype.edges.getArchetypeAfterBundleInsert(this.id);
+    if (existingArchetypeId.isSome()) {
+      return existingArchetypeId.unwrap();
+    }
+
+    let newTableComponents = Vec.new<ComponentId>();
+    let newSparseSetComponents = Vec.new<ComponentId>();
+    const bundleStatus = Vec.new<ComponentStatus>();
+    const addedRequiredComponents = Vec.new<RequiredComponentConstructor>();
+    const added = Vec.new<ComponentId>();
+    const existing = Vec.new<ComponentId>();
+
+    for (const componentId of this.iterExplicitComponents()) {
+      if (archetype.contains(componentId)) {
+        bundleStatus.push(ComponentStatus.Existing);
+        existing.push(componentId);
+      } else {
+        bundleStatus.push(ComponentStatus.Added);
+        added.push(componentId);
+        const componentInfo = components.getInfoUnchecked(componentId);
+        if (componentInfo.storageType === StorageType.Table) {
+          newTableComponents.push(componentId);
+        } else {
+          newSparseSetComponents.push(componentId);
+        }
+      }
+    }
+
+    for (const [index, componentId] of this.iterRequiredComponents().enumerate()) {
+      if (!archetype.contains(componentId)) {
+        addedRequiredComponents.push(this.requiredComponents[index]);
+        added.push(componentId);
+        const componentInfo = components.getInfoUnchecked(componentId);
+        if (componentInfo.storageType === StorageType.Table) {
+          newTableComponents.push(componentId);
+        } else {
+          newSparseSetComponents.push(componentId);
+        }
+      }
+    }
+
+    if (newTableComponents.isEmpty() && newSparseSetComponents.isEmpty()) {
+      archetype.edges.cacheArchetypeAfterBundleInsert(
+        this.id,
+        archetypeId,
+        bundleStatus,
+        addedRequiredComponents,
+        added,
+        existing,
+      );
+      return archetypeId;
+    } else {
+      let tableId: TableId;
+      let tableComponents: Vec<ComponentId>;
+      let sparseSetComponents: Vec<ComponentId>;
+
+      if (newTableComponents.isEmpty()) {
+        tableId = archetype.tableId;
+        tableComponents = Vec.from(archetype.tableComponents);
+      } else {
+        newTableComponents.extend(archetype.tableComponents);
+        newTableComponents = newTableComponents
+          .iter()
+          .sort()
+          .dedup()
+          .collectInto((value) => Vec.from(value));
+        tableId = storages.tables.getIdOrInsert(newTableComponents, components);
+        tableComponents = newTableComponents;
+      }
+
+      if (newSparseSetComponents.isEmpty()) {
+        sparseSetComponents = Vec.from(archetype.sparseSetComponents);
+      } else {
+        newSparseSetComponents.extend(archetype.sparseSetComponents);
+        newSparseSetComponents = newSparseSetComponents
+          .iter()
+          .sort()
+          .dedup()
+          .collectInto((value) => Vec.from(value));
+        sparseSetComponents = newSparseSetComponents;
+      }
+
+      const newArchetypeId = archetypes.getIdOrInsert(
+        components,
+        observers,
+        tableId,
+        tableComponents,
+        sparseSetComponents,
+      );
+
+      archetype.edges.cacheArchetypeAfterBundleInsert(
+        this.id,
+        newArchetypeId,
+        bundleStatus,
+        addedRequiredComponents,
+        added,
+        existing,
+      );
+
+      return newArchetypeId;
+    }
+  }
+  removeBundleFromArchetype(
+    archetypes: Archetypes,
+    storages: Storages,
+    components: Components,
+    observers: Observers,
+    archetypeId: ArchetypeId,
+    intersection: boolean,
+  ): Option<ArchetypeId> {
+    const edges = archetypes.get(archetypeId).unwrap().edges;
+    const removeBundleResult = intersection
+      ? edges.getArchetypeAfterBundleRemove(this.id)
+      : edges.getArchetypeAfterBundleTake(this.id);
+
+    const result = removeBundleResult.orElse(() => {
+      let nextTableComponents: Vec<ComponentId>;
+      let nextSparseSetComponents: Vec<ComponentId>;
+      let nextTableId: TableId;
+      {
+        const currentArchetype = archetypes.get(archetypeId).unwrap();
+        let removedTableComponents: Vec<ComponentId> = Vec.new();
+        let removedSparseSetComponents: Vec<ComponentId> = Vec.new();
+
+        for (const componentId of this.iterExplicitComponents()) {
+          if (currentArchetype.contains(componentId)) {
+            const componentInfo = components.getInfoUnchecked(componentId);
+            if (componentInfo.storageType === StorageType.Table) {
+              removedTableComponents.push(componentId);
+            } else {
+              removedSparseSetComponents.push(componentId);
+            }
+          } else if (!intersection) {
+            currentArchetype.edges.cacheArchetypeAfterBundleTake(this.id, None);
+            return None;
+          }
+        }
+
+        removedTableComponents = removedTableComponents
+          .iter()
+          .sort()
+          .dedup()
+          .collectInto((value) => Vec.from(value));
+        removedSparseSetComponents = removedSparseSetComponents
+          .iter()
+          .sort()
+          .dedup()
+          .collectInto((value) => Vec.from(value));
+
+        nextTableComponents = Vec.from(currentArchetype.tableComponents);
+        nextSparseSetComponents = Vec.from(currentArchetype.sparseSetComponents);
+        sortedRemove(nextTableComponents, removedTableComponents);
+        sortedRemove(nextSparseSetComponents, removedSparseSetComponents);
+
+        nextTableId = removedTableComponents.isEmpty()
+          ? currentArchetype.tableId
+          : storages.tables.getIdOrInsert(nextTableComponents, components);
+      }
+
+      const newArchetypeId = archetypes.getIdOrInsert(
+        components,
+        observers,
+        nextTableId,
+        nextTableComponents,
+        nextSparseSetComponents,
+      );
+
+      return Some(newArchetypeId);
+    });
+
+    const currentArchetype = archetypes.getUnchecked(archetypeId);
+    if (intersection) {
+      currentArchetype.edges.cacheArchetypeAfterBundleRemove(this.id, result);
+    } else {
+      currentArchetype.edges.cacheArchetypeAfterBundleTake(this.id, result);
+    }
+
+    return result;
+  }
+}
+
+function sortedRemove(source: Vec<number>, remove: Vec<number>): void {
+  let removeIndex = 0;
+  source.retain((value) => {
+    while (removeIndex < remove.len() && value > remove[removeIndex]) {
+      removeIndex += 1;
+    }
+    if (removeIndex < remove.len()) {
+      return value !== remove[removeIndex];
+    } else {
+      return true;
+    }
+  });
+}

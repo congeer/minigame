@@ -1,6 +1,9 @@
 node_modules
 .idea
+.vscode
 dist
 lib
 package-lock.json
 yarn.lock
+.yarn
+coverage

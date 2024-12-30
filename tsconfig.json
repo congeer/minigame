@@ -1,21 +1,30 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
+    "allowJs": false,
+    "target": "ESNext",
+    "module": "ESNext",
+    "baseUrl": "./",
     "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+    "strict": true,
+    "esModuleInterop": true,
     "removeComments": true,
     "importHelpers": true,
-    "esModuleInterop": true,
-    "sourceMap": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "types": ["@types/jest"],
-    "lib": [
-      "dom",
-      "esnext"
-    ]
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    "types": ["node", "jest"],
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "paths": {
+      "@minigame/ecs": ["packages/ecs"],
+      "@minigame/utils": ["packages/utils"],
+      "@minigame/wechat-adapter": ["packages/wechat-adapter"]
+    }
   },
-  "include": ["src"],
+  "include": ["packages", "types", "scripts"]
 }

@@ -13,15 +13,10 @@
     "type": "git",
     "url": "git+https://github.com/congeer/minigame.git"
   },
-  "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "types": "tsc --emitDeclarationOnly --declaration --skipLibCheck --declarationDir lib"
-  },
   "bugs": {
     "url": "https://github.com/congeer/minigame/issues"
   },
   "dependencies": {
-    "nanoid": "^5.0.4"
+    "rustable": "^0.2.8"
   }
 }
