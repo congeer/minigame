@@ -22,8 +22,7 @@
     "typeRoots": ["./node_modules/@types", "./types"],
     "paths": {
       "@minigame/ecs": ["packages/ecs"],
-      "@minigame/utils": ["packages/utils"],
-      "@minigame/wechat-adapter": ["packages/wechat-adapter"]
+      "@minigame/utils": ["packages/utils"]
     }
   },
   "include": ["packages", "types", "scripts"]
